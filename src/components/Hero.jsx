@@ -45,7 +45,7 @@ const Hero = () => {
           
           <div className="mb-2 w-full max-w-6xl mx-auto flex justify-center items-center">
             <Logo10X 
-              className="h-12 md:h-18 lg:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+              className="h-12 md:h-18 lg:h-24 w-auto object-contain"
               animateTechnologies={true}
               delay={600}
             />
