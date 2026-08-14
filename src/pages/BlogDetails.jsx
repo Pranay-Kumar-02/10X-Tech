@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { Calendar, ArrowLeft } from 'lucide-react';
+import { Calendar, ArrowLeft, Tag } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ContactModal from '../components/ContactModal';
@@ -42,7 +42,14 @@ const BlogDetails = () => {
         <main className="flex-grow pt-28 pb-20">
 
           {/* Article Header (Title & Meta) */}
-          <section className="relative w-full max-w-[900px] mx-auto px-6 mb-10 text-center">
+          <section className="relative w-full max-w-[900px] mx-auto px-6 mb-10 text-center flex flex-col items-center">
+            {post.category && (
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#512da8]/40 bg-[#512da8]/10 text-[#a882ff] mb-6 shadow-[0_0_15px_rgba(81,45,168,0.15)]">
+                <Tag className="w-3.5 h-3.5" />
+                <span className="text-xs font-semibold tracking-wide uppercase">{post.category}</span>
+              </div>
+            )}
+
             <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.15] mb-6 mx-auto">
               {post.title}
             </h1>
@@ -53,7 +60,7 @@ const BlogDetails = () => {
                 <span className="text-[#aaa] text-sm font-medium">{post.date}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-[#111]">
-                <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full" />
+                <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover" />
                 <span className="text-[#aaa] text-sm font-medium">{post.authorName}</span>
               </div>
             </div>
@@ -61,55 +68,52 @@ const BlogDetails = () => {
 
           {/* Hero Image */}
           <section className="relative w-full max-w-[1000px] mx-auto px-6 mb-16">
-            <div className={`w-full aspect-[16/9] md:aspect-[21/9] rounded-[24px] overflow-hidden border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] ${post.imageBg || 'bg-[#0a0a0f]'}`}>
-              <img 
-                src={post.image} 
-                alt={post.title} 
-                className={`w-full h-full ${post.imageFit || 'object-cover'} ${post.imagePadding || ''}`}
-              />
+            <div className={`w-full aspect-[16/9] rounded-[24px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] ${post.imageBg || 'bg-black'}`}>
+              {post.heroBanner || post.image ? (
+                <img 
+                  src={post.heroBanner || post.image} 
+                  alt={post.title} 
+                  className={`w-full h-full ${post.imageFit || 'object-contain object-top'} ${post.imagePadding || ''}`}
+                />
+              ) : post.coverText ? (
+                <div className="w-full h-full flex flex-col justify-center items-center p-8 bg-black relative overflow-hidden">
+                  <div className="absolute inset-0 pointer-events-none select-none">
+                    <svg className="w-full h-full opacity-80" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="15%" y="22%" width="3" height="3" fill="#ffffff" opacity="0.9" />
+                      <rect x="35%" y="12%" width="2.5" height="2.5" fill="#ffffff" opacity="0.7" />
+                      <rect x="42%" y="8%" width="3.5" height="3.5" fill="#ffffff" opacity="1" />
+                      <rect x="48%" y="24%" width="2.5" height="2.5" fill="#ffffff" opacity="0.6" />
+                      <rect x="28%" y="18%" width="2.5" height="2.5" fill="#ffffff" opacity="0.8" />
+                      <rect x="80%" y="28%" width="2.5" height="2.5" fill="#ffffff" opacity="0.8" />
+                      <rect x="86%" y="34%" width="3" height="3" fill="#ffffff" opacity="0.9" />
+                      <rect x="30%" y="45%" width="3.5" height="3.5" fill="#ffffff" opacity="0.85" />
+                      <rect x="29%" y="58%" width="3" height="3" fill="#ffffff" opacity="0.7" />
+                      <rect x="22%" y="71%" width="2.5" height="2.5" fill="#ffffff" opacity="0.6" />
+                      <rect x="50%" y="82%" width="2.5" height="2.5" fill="#ffffff" opacity="0.5" />
+                      <rect x="60%" y="78%" width="3" height="3" fill="#ffffff" opacity="0.8" />
+                      <rect x="70%" y="65%" width="2.5" height="2.5" fill="#ffffff" opacity="0.7" />
+                      <rect x="97%" y="52%" width="2.5" height="2.5" fill="#ffffff" opacity="0.9" />
+                      <rect x="95%" y="88%" width="3" height="3" fill="#ffffff" opacity="1" />
+                      <rect x="91%" y="92%" width="2.5" height="2.5" fill="#ffffff" opacity="0.6" />
+                      <rect x="12%" y="88%" width="2.5" height="2.5" fill="#ffffff" opacity="0.5" />
+                      <rect x="68%" y="15%" width="2.5" height="2.5" fill="#ffffff" opacity="0.6" />
+                      <rect x="74%" y="40%" width="2.5" height="2.5" fill="#ffffff" opacity="0.4" />
+                      <rect x="18%" y="50%" width="2.5" height="2.5" fill="#ffffff" opacity="0.5" />
+                      <rect x="62%" y="32%" width="3" height="3" fill="#ffffff" opacity="0.75" />
+                    </svg>
+                  </div>
+                  <span className="relative z-10 text-white text-3xl md:text-5xl font-extrabold tracking-widest uppercase text-center font-sans select-none">
+                    {post.coverText}
+                  </span>
+                </div>
+              ) : null}
             </div>
           </section>
 
           {/* Article Content */}
           <section className="relative w-full max-w-[720px] mx-auto px-6">
             <div className="text-[#aaa] text-lg font-light leading-relaxed">
-              
-              {post.content ? (
-                post.content
-              ) : (
-                <>
-                  <h2 className="text-3xl font-bold text-white mb-6 tracking-tight mt-12 first:mt-0">Introduction</h2>
-                  <p className="mb-6">
-                    Creating a truly data-driven culture isn't just about having data—it's about building the right processes, systems, and habits that make data central to decision-making, empowering teams, improving collaboration, driving innovation, and ensuring organizations stay agile, competitive, and future-ready in a rapidly evolving business landscape.
-                  </p>
-
-                  <h2 className="text-3xl font-bold text-white mb-6 tracking-tight mt-12">Secure Leadership Buy-In</h2>
-                  <p className="mb-6">
-                    Leadership must champion data as the foundation for decisions, setting a clear example, inspiring accountability, encouraging adoption across teams, and ensuring that data-driven practices become ingrained in the organizational culture.
-                  </p>
-
-                  <h2 className="text-3xl font-bold text-white mb-6 tracking-tight mt-12">Define Clear Data Processes</h2>
-                  <p className="mb-6">
-                    Set clear expectations that strategies, campaigns, and operations are backed by data, ensuring measurable goals, accountability, transparency, and alignment with organizational objectives for consistent growth, innovation, and informed decision-making across all departments.
-                  </p>
-                  
-                  <ul className="list-disc pl-6 mb-6 space-y-3">
-                    <li>Standardize how data is collected, stored, and maintained.</li>
-                    <li>Establish protocols for data governance, accuracy, and consistency.</li>
-                  </ul>
-                  
-                  <div className="my-14 p-6 rounded-[24px] bg-[#512da8]/10 border border-[#512da8]/30 shadow-[0_0_30px_rgba(81,45,168,0.1)]">
-                    <p className="text-xl md:text-2xl font-medium text-white italic leading-relaxed m-0 text-center">
-                      "The future belongs to models with architectures crafted, optimized, and deployed for focused, low-latency tasks."
-                    </p>
-                  </div>
-
-                  <h2 className="text-3xl font-bold text-white mb-6 tracking-tight mt-12">Empower Your Team</h2>
-                  <p className="mb-6">
-                    Equip employees with the tools, training, and resources they need to confidently use data in their daily roles, fostering a sense of ownership, improving efficiency, and encouraging a proactive mindset when approaching complex challenges.
-                  </p>
-                </>
-              )}
+              {post.content}
             </div>
           </section>
 
@@ -130,29 +134,68 @@ const BlogDetails = () => {
               </Link>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {otherPosts.slice(0, 3).map((relatedPost) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {otherPosts.map((relatedPost) => (
                 <Link 
                   to={`/blog/${relatedPost.id}`}
                   key={relatedPost.id} 
                   className="group flex flex-col no-cursor-track"
                 >
-                  <div className={`relative w-full aspect-[4/3] rounded-[24px] overflow-hidden mb-6 border border-white/5 group-hover:border-[#512da8]/30 transition-colors duration-500 ${relatedPost.imageBg || 'bg-[#0a0a0f]'}`}>
-                    <img 
-                      src={relatedPost.image} 
-                      alt={relatedPost.title} 
-                      className={`w-full h-full ${relatedPost.imageFit || 'object-cover'} ${relatedPost.imagePadding || ''}`}
-                    />
+                  <div className={`relative w-full aspect-[4/3] rounded-[24px] overflow-hidden mb-6 border border-white/10 group-hover:border-[#512da8]/40 transition-all duration-500 ${relatedPost.imageBg || 'bg-[#0a0a0f]'}`}>
+                    {relatedPost.coverText ? (
+                      <div className="w-full h-full flex flex-col justify-center items-center p-6 bg-black relative overflow-hidden group-hover:bg-[#050508] transition-colors duration-500">
+                        <div className="absolute inset-0 pointer-events-none select-none">
+                          <svg className="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity duration-500" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="15%" y="22%" width="2.5" height="2.5" fill="#ffffff" opacity="0.9" />
+                            <rect x="35%" y="12%" width="2" height="2" fill="#ffffff" opacity="0.7" />
+                            <rect x="42%" y="8%" width="3" height="3" fill="#ffffff" opacity="1" />
+                            <rect x="48%" y="24%" width="2" height="2" fill="#ffffff" opacity="0.6" />
+                            <rect x="28%" y="18%" width="2" height="2" fill="#ffffff" opacity="0.8" />
+                            <rect x="80%" y="28%" width="2" height="2" fill="#ffffff" opacity="0.8" />
+                            <rect x="86%" y="34%" width="2.5" height="2.5" fill="#ffffff" opacity="0.9" />
+                            <rect x="30%" y="45%" width="3" height="3" fill="#ffffff" opacity="0.85" />
+                            <rect x="29%" y="58%" width="2.5" height="2.5" fill="#ffffff" opacity="0.7" />
+                            <rect x="22%" y="71%" width="2" height="2" fill="#ffffff" opacity="0.6" />
+                            <rect x="50%" y="82%" width="2" height="2" fill="#ffffff" opacity="0.5" />
+                            <rect x="60%" y="78%" width="2.5" height="2.5" fill="#ffffff" opacity="0.8" />
+                            <rect x="70%" y="65%" width="2" height="2" fill="#ffffff" opacity="0.7" />
+                            <rect x="97%" y="52%" width="2" height="2" fill="#ffffff" opacity="0.9" />
+                            <rect x="95%" y="88%" width="2.5" height="2.5" fill="#ffffff" opacity="1" />
+                            <rect x="91%" y="92%" width="2" height="2" fill="#ffffff" opacity="0.6" />
+                            <rect x="12%" y="88%" width="2" height="2" fill="#ffffff" opacity="0.5" />
+                            <rect x="68%" y="15%" width="2" height="2" fill="#ffffff" opacity="0.6" />
+                            <rect x="74%" y="40%" width="2" height="2" fill="#ffffff" opacity="0.4" />
+                            <rect x="18%" y="50%" width="2" height="2" fill="#ffffff" opacity="0.5" />
+                            <rect x="62%" y="32%" width="2.5" height="2.5" fill="#ffffff" opacity="0.75" />
+                          </svg>
+                        </div>
+                        <span className="relative z-10 text-white text-xl md:text-2xl font-extrabold tracking-widest uppercase text-center font-sans select-none">
+                          {relatedPost.coverText}
+                        </span>
+                      </div>
+                    ) : (
+                      <img 
+                        src={relatedPost.image} 
+                        alt={relatedPost.title} 
+                        className={`w-full h-full ${relatedPost.imageFit || 'object-cover'} ${relatedPost.imagePadding || ''}`}
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
 
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#111]">
-                      <Calendar className="w-3.5 h-3.5 text-[#888]" />
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    {relatedPost.category && (
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#512da8]/40 bg-[#512da8]/10 text-[#a882ff]">
+                        <Tag className="w-3 h-3" />
+                        <span className="text-[11px] font-semibold tracking-wide uppercase">{relatedPost.category}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-[#111]">
+                      <Calendar className="w-3 h-3 text-[#888]" />
                       <span className="text-[#aaa] text-xs font-medium">{relatedPost.date}</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#111]">
-                      <img src={relatedPost.authorAvatar} alt={relatedPost.authorName} className="w-4 h-4 rounded-full" />
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-[#111]">
+                      <img src={relatedPost.authorAvatar} alt={relatedPost.authorName} className="w-3.5 h-3.5 rounded-full" />
                       <span className="text-[#aaa] text-xs font-medium">{relatedPost.authorName}</span>
                     </div>
                   </div>
