@@ -31,6 +31,30 @@
   }
 }
 
+/* Google Cloud Style Logo Fade Animation */
+@keyframes fadeTechnologiesIn {
+  0% {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateX(-20px);
+  }
+  15% {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0px);
+  }
+}
+
+.animate-technologies-fade {
+  animation: fadeTechnologiesIn 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform, filter;
+}
+
 /* Global Stability Fixes */
 .min-h-screen {
   min-height: 100svh;
