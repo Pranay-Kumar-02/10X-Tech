@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Mic } from 'lucide-react';
+import Logo10X from './Logo10X';
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -42,21 +43,13 @@ const Hero = () => {
         {/* Centered Column: Text & CTA */}
         <div className="w-full flex flex-col items-center text-center z-20">
           
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-2 w-full max-w-6xl mx-auto"
-          >
-            <div className="flex justify-center items-center w-full">
-              <img
-                src="https://i.ibb.co/Y781ky06/Screenshot-2026-05-26-000916-removebg-preview.png"
-                alt="10X Technologies"
-                className="h-14 md:h-20 lg:h-28 w-auto object-contain"
-                fetchpriority="high"
-              />
-            </div>
-          </motion.div>
+          <div className="mb-2 w-full max-w-6xl mx-auto flex justify-center items-center">
+            <Logo10X 
+              className="h-12 md:h-18 lg:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+              animateTechnologies={true}
+              delay={600}
+            />
+          </div>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
