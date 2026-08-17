@@ -77,15 +77,15 @@ const PartnerModal = ({ isOpen, onClose, partner }) => {
             </div>
 
             {/* Immersive Content Section */}
-            <div className="relative z-20 px-8 md:px-16 pb-20">
+            <div className="relative z-20 px-4 sm:px-8 md:px-16 pb-16 sm:pb-20">
 
               {/* Thin Violet Glow Separator */}
-              <div className="h-px w-full bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.1)] mb-10" />
+              <div className="h-px w-full bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.1)] mb-8 sm:mb-10" />
 
               {/* Branding Block - Optimized Hierarchy */}
               <div className="mb-6">
                 <div className="flex flex-col gap-2">
-                  <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter leading-none">
+                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter leading-none">
                     {partner.name}
                   </h2>
                   <span className="text-purple-400 text-xs font-black uppercase tracking-[0.4em] mt-2 opacity-80">

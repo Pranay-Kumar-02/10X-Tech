@@ -59,9 +59,9 @@ const SmartSpeakerHero = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, delay: 0.2 }}
-            className="col-span-12 md:col-span-6 flex justify-end relative"
+            className="col-span-12 md:col-span-6 flex justify-center md:justify-end relative"
           >
-            <div className="relative w-full max-w-lg flex items-center justify-center pointer-events-none" style={{ marginLeft: '65px', marginRight: '-90px' }}>
+            <div className="relative w-full max-w-lg flex items-center justify-center pointer-events-none md:ml-[65px] md:-mr-[90px]">
               <video
                 ref={videoRef}
                 src="/luca_reveal.webm"

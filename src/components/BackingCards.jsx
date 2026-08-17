@@ -152,12 +152,12 @@ const BackingCards = () => {
 
   return (
     <>
-    <section className="relative z-20 w-full max-w-[1360px] mx-auto px-6 py-4 lg:py-6">
+    <section className="relative z-20 w-full max-w-[1360px] mx-auto px-4 sm:px-6 py-4 lg:py-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
         {backers.map((backer, i) => (
           <div 
             key={i} 
-            className={`relative h-full flex flex-col rounded-[28px] p-6 overflow-hidden border border-white/[0.05] bg-white/[0.01] backdrop-blur-md ${backer.borderHover} transition-all duration-500 group`}
+            className={`relative h-full flex flex-col rounded-[28px] p-5 sm:p-6 overflow-hidden border border-white/[0.05] bg-white/[0.01] backdrop-blur-md ${backer.borderHover} transition-all duration-500 group`}
           >
             <div
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -168,7 +168,7 @@ const BackingCards = () => {
             </div>
             <div className="relative z-10 flex flex-col items-center text-center flex-1">
               <span className="text-tagline-02 text-purple-400 uppercase mb-3">{backer.tagline}</span>
-              <h3 className="text-[1.05rem] lg:text-[1.15rem] xl:text-[1.35rem] font-semibold text-white tracking-tight mb-4 whitespace-nowrap w-full">{backer.name}</h3>
+              <h3 className="text-[1.05rem] lg:text-[1.15rem] xl:text-[1.35rem] font-semibold text-white tracking-tight mb-4 w-full">{backer.name}</h3>
               <p className="text-[0.95rem] text-[#A0A0A0] leading-[1.7] mb-6 w-full max-w-[300px] mx-auto">{backer.description}</p>
               <button
                 onClick={() => openModal(backer)}

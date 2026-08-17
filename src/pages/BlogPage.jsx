@@ -267,29 +267,29 @@ const BlogPage = () => {
         <Navbar openContactModal={() => setIsContactModalOpen(true)} />
         
         {/* Main Content */}
-        <main className="flex-grow pt-28 pb-20">
+        <main className="flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20">
           
           {/* Blog Hero Section */}
-          <section className="relative w-full mx-auto px-6 pt-28 pb-20 min-h-[75svh] flex flex-col justify-center items-center overflow-hidden border-b border-white/5">
-            <div className="relative z-10 flex flex-col items-center max-w-[1360px] mx-auto w-full">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-[#0a0a0f] mb-6 shadow-[0_0_15px_rgba(81,45,168,0.15)]">
+          <section className="relative w-full mx-auto px-4 sm:px-6 pt-16 sm:pt-28 pb-12 sm:pb-20 min-h-[50svh] sm:min-h-[75svh] flex flex-col justify-center items-center overflow-hidden border-b border-white/5">
+            <div className="relative z-10 flex flex-col items-center max-w-[1360px] mx-auto w-full text-center">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-[#0a0a0f] mb-6 shadow-[0_0_15px_rgba(81,45,168,0.15)]">
                 <div className="w-2 h-2 rounded-full bg-[#512da8] animate-pulse"></div>
-                <span className="text-[#ccc] text-sm font-medium">Recent blog updates</span>
+                <span className="text-[#ccc] text-xs sm:text-sm font-medium">Recent blog updates</span>
               </div>
 
-              <h1 className="text-white text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-[1.1] mb-6 max-w-4xl text-center">
+              <h1 className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-[1.1] mb-4 sm:mb-6 max-w-4xl text-center px-2">
                 COMING SOON
               </h1>
               
-              <p className="text-[#888] text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed font-light text-center">
+              <p className="text-[#888] text-base sm:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed font-light text-center px-4">
                 Fintech is its potential to promote financial inclusion. In many parts of the world, millions of people lack access to traditional banking services.
               </p>
             </div>
           </section>
 
-          {/* All Blog Grid Section (3 Category Placeholders at Top + All Existing Cards Below) */}
-          <section className="relative z-20 w-full max-w-[1360px] mx-auto px-6 pt-16 pb-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+          {/* All Blog Grid Section */}
+          <section className="relative z-20 w-full max-w-[1360px] mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-x-8 md:gap-y-12 lg:gap-y-16">
               {blogPosts.map((post) => (
                 <Link 
                   to={`/blog/${post.id}`}

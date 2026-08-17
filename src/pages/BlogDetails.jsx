@@ -42,33 +42,33 @@ const BlogDetails = () => {
         <main className="flex-grow pt-28 pb-20">
 
           {/* Article Header (Title & Meta) */}
-          <section className="relative w-full max-w-[900px] mx-auto px-6 mb-10 text-center flex flex-col items-center">
+          <section className="relative w-full max-w-[900px] mx-auto px-4 sm:px-6 mb-8 sm:mb-10 text-center flex flex-col items-center">
             {post.category && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#512da8]/40 bg-[#512da8]/10 text-[#a882ff] mb-6 shadow-[0_0_15px_rgba(81,45,168,0.15)]">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#512da8]/40 bg-[#512da8]/10 text-[#a882ff] mb-4 sm:mb-6 shadow-[0_0_15px_rgba(81,45,168,0.15)]">
                 <Tag className="w-3.5 h-3.5" />
-                <span className="text-xs font-semibold tracking-wide uppercase">{post.category}</span>
+                <span className="text-[11px] sm:text-xs font-semibold tracking-wide uppercase">{post.category}</span>
               </div>
             )}
 
-            <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.15] mb-6 mx-auto">
+            <h1 className="text-white text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.15] mb-4 sm:mb-6 mx-auto px-2">
               {post.title}
             </h1>
             
-            <div className="flex items-center justify-center gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-[#111]">
-                <Calendar className="w-4 h-4 text-[#888]" />
-                <span className="text-[#aaa] text-sm font-medium">{post.date}</span>
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-[#111]">
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#888]" />
+                <span className="text-[#aaa] text-xs sm:text-sm font-medium">{post.date}</span>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-[#111]">
-                <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover" />
-                <span className="text-[#aaa] text-sm font-medium">{post.authorName}</span>
+              <div className="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-[#111]">
+                <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover" />
+                <span className="text-[#aaa] text-xs sm:text-sm font-medium">{post.authorName}</span>
               </div>
             </div>
           </section>
 
           {/* Hero Image */}
-          <section className="relative w-full max-w-[1000px] mx-auto px-6 mb-16">
-            <div className={`w-full aspect-[16/9] rounded-[24px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] ${post.imageBg || 'bg-black'}`}>
+          <section className="relative w-full max-w-[1000px] mx-auto px-4 sm:px-6 mb-10 sm:mb-16">
+            <div className={`w-full aspect-[16/9] rounded-[18px] sm:rounded-[24px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] ${post.imageBg || 'bg-black'}`}>
               {post.heroBanner || post.image ? (
                 <img 
                   src={post.heroBanner || post.image} 
@@ -76,7 +76,7 @@ const BlogDetails = () => {
                   className={`w-full h-full ${post.imageFit || 'object-contain object-top'} ${post.imagePadding || ''}`}
                 />
               ) : post.coverText ? (
-                <div className="w-full h-full flex flex-col justify-center items-center p-8 bg-black relative overflow-hidden">
+                <div className="w-full h-full flex flex-col justify-center items-center p-6 sm:p-8 bg-black relative overflow-hidden">
                   <div className="absolute inset-0 pointer-events-none select-none">
                     <svg className="w-full h-full opacity-80" xmlns="http://www.w3.org/2000/svg">
                       <rect x="15%" y="22%" width="3" height="3" fill="#ffffff" opacity="0.9" />
@@ -102,7 +102,7 @@ const BlogDetails = () => {
                       <rect x="62%" y="32%" width="3" height="3" fill="#ffffff" opacity="0.75" />
                     </svg>
                   </div>
-                  <span className="relative z-10 text-white text-3xl md:text-5xl font-extrabold tracking-widest uppercase text-center font-sans select-none">
+                  <span className="relative z-10 text-white text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-widest uppercase text-center font-sans select-none">
                     {post.coverText}
                   </span>
                 </div>
@@ -111,18 +111,18 @@ const BlogDetails = () => {
           </section>
 
           {/* Article Content */}
-          <section className="relative w-full max-w-[720px] mx-auto px-6">
-            <div className="text-[#aaa] text-lg font-light leading-relaxed">
+          <section className="relative w-full max-w-[720px] mx-auto px-4 sm:px-6">
+            <div className="text-[#aaa] text-base sm:text-lg font-light leading-relaxed">
               {post.content}
             </div>
           </section>
 
           {/* Explore More Blogs Section */}
-          <section className="relative w-full max-w-[1360px] mx-auto px-6 mt-24 pt-16 border-t border-white/5">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+          <section className="relative w-full max-w-[1360px] mx-auto px-4 sm:px-6 mt-16 sm:mt-24 pt-10 sm:pt-16 border-t border-white/5">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 sm:mb-10 gap-6">
               <div>
-                <h2 className="text-white text-3xl md:text-5xl font-bold tracking-tight mb-4">Explore more blogs</h2>
-                <p className="text-[#888] text-lg max-w-xl">
+                <h2 className="text-white text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4">Explore more blogs</h2>
+                <p className="text-[#888] text-base sm:text-lg max-w-xl">
                   Discover more insights, research, and technical deep-dives from our engineering team.
                 </p>
               </div>

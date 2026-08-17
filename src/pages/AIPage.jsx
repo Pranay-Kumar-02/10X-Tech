@@ -103,15 +103,15 @@ const AIPage = () => {
 
         <main className="flex-grow flex flex-col w-full">
           {/* Section 1: Hero */}
-          <section className="relative w-full flex flex-col z-10 pt-32 md:pt-48 lg:pt-56 pb-2">
+          <section className="relative w-full flex flex-col z-10 pt-28 sm:pt-36 md:pt-48 lg:pt-56 pb-2">
             {/* Main content — vertically centered, responsive grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-6 items-stretch max-w-[1360px] mx-auto w-full px-6 pb-2 lg:pb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-6 items-stretch max-w-[1360px] mx-auto w-full px-4 sm:px-6 pb-2 lg:pb-4">
               
               {/* Left Column: Text Content */}
               <div className="max-w-2xl flex flex-col gap-4 order-1">
                 
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 bg-[#512da8]/20 border border-[#512da8]/30 rounded-full px-3 py-1.5 w-fit mb-4">
+                <div className="inline-flex items-center gap-2 bg-[#512da8]/20 border border-[#512da8]/30 rounded-full px-3 py-1.5 w-fit mb-2 sm:mb-4">
                   <svg className="w-3.5 h-3.5 text-[#a78bfa]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
                   </svg>
@@ -120,33 +120,33 @@ const AIPage = () => {
 
                 {/* Heading */}
                 <div>
-                  <h1 className="text-tier-1 opacity-[0.85] transform-gpu will-change-transform" style={{ fontSize: 'clamp(3.5rem, 7vw, 5.5rem)', transform: 'translateZ(0)' }}>
+                  <h1 className="text-tier-1 opacity-[0.85] transform-gpu will-change-transform" style={{ fontSize: 'clamp(2.2rem, 7vw, 5.5rem)', transform: 'translateZ(0)' }}>
                     L . F . M
                   </h1>
-                  <p className="text-tier-2 mt-4 text-lg">
+                  <p className="text-tier-2 mt-3 sm:mt-4 text-base sm:text-lg">
                     Conversational AI for internal knowledge.
                   </p>
                 </div>
 
                 {/* Description */}
                 <div className="flex flex-col gap-6 text-tier-3 max-w-xl mb-4">
-                  <p className="leading-relaxed text-[15px]">
+                  <p className="leading-relaxed text-sm sm:text-[15px]">
                     Engineered exclusively for rigid enterprise architecture, the Language Fluency Model bypasses the latency, cost, and critical security vulnerabilities of cloud-based APIs. It securely ingests your proprietary knowledge bases and operational manuals to deliver immediate, perfectly localized answers directly within your secure perimeter.
                   </p>
 
                 </div>
 
                 {/* Buttons */}
-                <div className="flex items-center gap-4 flex-wrap mt-1">
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap mt-1">
                   <button
                     onClick={() => setIsContactModalOpen(true)}
-                    className="px-7 py-3 rounded-full bg-white text-black text-sm font-bold tracking-wide hover:bg-zinc-200 transition-all duration-300"
+                    className="px-6 sm:px-7 py-2.5 sm:py-3 rounded-full bg-white text-black text-xs sm:text-sm font-bold tracking-wide hover:bg-zinc-200 transition-all duration-300"
                   >
                     Get a Demo
                   </button>
                   <button
                     onClick={() => setIsContactModalOpen(true)}
-                    className="px-7 py-3 rounded-full border border-white/[0.15] text-white text-sm font-bold tracking-wide hover:border-white/40 transition-all duration-300"
+                    className="px-6 sm:px-7 py-2.5 sm:py-3 rounded-full border border-white/[0.15] text-white text-xs sm:text-sm font-bold tracking-wide hover:border-white/40 transition-all duration-300"
                   >
                     Our Approach
                   </button>
@@ -155,9 +155,9 @@ const AIPage = () => {
               </div>
 
               {/* Right Column: Duplicated AI Active visual */}
-              <div className="flex justify-center lg:justify-end order-2 w-full h-full">
+              <div className="flex justify-center lg:justify-end order-2 w-full h-full min-h-[260px] sm:min-h-[340px]">
                 <div
-                  className="relative w-full h-full rounded-[24px] bg-[#04040c] overflow-hidden flex flex-col cursor-pointer"
+                  className="relative w-full h-full rounded-[24px] bg-[#04040c] overflow-hidden flex flex-col cursor-pointer min-h-[260px] sm:min-h-[340px]"
                   style={{ boxShadow: '0 0 60px rgba(81,45,168,0.15), 0 0 120px rgba(81,45,168,0.1)' }}
                   onMouseDown={handleEyeBlink}
                 >
@@ -190,13 +190,13 @@ const AIPage = () => {
                   </div>
 
                   {/* Eyes */}
-                  <div className="relative z-10 flex-1 flex items-center justify-center gap-10">
+                  <div className="relative z-10 flex-1 flex items-center justify-center gap-6 sm:gap-10 py-6">
                     <div 
-                      className="w-[74px] h-[74px] rounded-full bg-white shadow-[0_0_30px_rgba(255,255,255,0.25),0_0_60px_rgba(255,255,255,0.1)] transition-transform duration-100 ease-out"
+                      className="w-[52px] h-[52px] sm:w-[74px] sm:h-[74px] rounded-full bg-white shadow-[0_0_30px_rgba(255,255,255,0.25),0_0_60px_rgba(255,255,255,0.1)] transition-transform duration-100 ease-out"
                       style={{ transform: isBlinking ? `${eyeTransform} scaleY(0.06)` : eyeTransform }}
                     ></div>
                     <div 
-                      className="w-[74px] h-[74px] rounded-full bg-white shadow-[0_0_30px_rgba(255,255,255,0.25),0_0_60px_rgba(255,255,255,0.1)] transition-transform duration-100 ease-out"
+                      className="w-[52px] h-[52px] sm:w-[74px] sm:h-[74px] rounded-full bg-white shadow-[0_0_30px_rgba(255,255,255,0.25),0_0_60px_rgba(255,255,255,0.1)] transition-transform duration-100 ease-out"
                       style={{ transform: isBlinking ? `${eyeTransform} scaleY(0.06)` : eyeTransform }}
                     ></div>
                   </div>

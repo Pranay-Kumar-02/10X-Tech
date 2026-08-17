@@ -230,9 +230,9 @@ const Footer = ({ openContactModal, minimal = false, hideCommunitySupport = fals
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent blur-[1px]" />
 
-            <div className="relative z-10 w-full flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="relative z-10 w-full flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10 text-center md:text-left">
               {/* Left: summarize with AI */}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                 <span className="text-[#444] text-[11px] font-medium tracking-wide whitespace-nowrap">Summarize with AI</span>
                 <div className="flex items-center gap-3">
                   {ais.map((ai) => (
@@ -251,20 +251,20 @@ const Footer = ({ openContactModal, minimal = false, hideCommunitySupport = fals
               </div>
 
               {/* Center: copyright */}
-              <span className="text-body-03 text-[#555] whitespace-nowrap">© 2026 10X Technologies. • All rights reserved</span>
+              <span className="text-body-03 text-[#555] text-xs sm:text-sm">© 2026 10X Technologies. • All rights reserved</span>
 
               {/* Right: social icons */}
-              <div className="flex items-center gap-4">
-                <a href="#" className="text-[#555] hover:text-sky-400 hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] transition-all duration-300 group">
+              <div className="flex items-center justify-center gap-4">
+                <a href="#" aria-label="Twitter" className="text-[#555] hover:text-sky-400 hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] transition-all duration-300 group">
                   <Twitter className="w-[16px] h-[16px] group-hover:-translate-y-0.5 transition-transform" />
                 </a>
-                <a href="#" className="text-[#555] hover:text-blue-500 hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transition-all duration-300 group">
+                <a href="https://www.linkedin.com/company/10xglobaltechnologies/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-[#555] hover:text-blue-500 hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transition-all duration-300 group">
                   <Linkedin className="w-[16px] h-[16px] group-hover:-translate-y-0.5 transition-transform" />
                 </a>
-                <a href="#" className="text-[#555] hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-300 group">
+                <a href="#" aria-label="GitHub" className="text-[#555] hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-300 group">
                   <Github className="w-[16px] h-[16px] group-hover:-translate-y-0.5 transition-transform" />
                 </a>
-                <a href="#" className="text-[#555] hover:text-red-500 hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-all duration-300 group">
+                <a href="#" aria-label="YouTube" className="text-[#555] hover:text-red-500 hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-all duration-300 group">
                   <Youtube className="w-[17px] h-[17px] group-hover:-translate-y-0.5 transition-transform" />
                 </a>
               </div>
