@@ -148,22 +148,30 @@ const Navbar = ({ openContactModal }) => {
             isMobileMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-3 pointer-events-none hidden'
           }`}>
             <div className="bg-[#07070a]/95 border border-white/[0.12] rounded-[28px] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_40px_rgba(81,45,168,0.2)] backdrop-blur-2xl">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1.5">
                 {/* Nav Option 1: Smart Speaker */}
                 <Link 
                   to="/product" 
                   onClick={(e) => handleNavClick(e, '/product')}
                   className={`group flex items-center justify-between py-3 px-4 rounded-2xl transition-all duration-200 ${
                     location.pathname === '/product' 
-                      ? 'bg-purple-500/15 text-white border border-purple-500/30' 
-                      : 'text-white/80 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.09]'
+                      ? 'bg-[#512da8]/15 border border-[#a882ff]/35 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_20px_rgba(81,45,168,0.15)]' 
+                      : 'text-white/75 hover:text-white hover:bg-white/[0.04] active:bg-white/[0.07] border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    {location.pathname === '/product' && <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />}
-                    <span className="text-sm font-semibold tracking-wide whitespace-nowrap">LUCA ●● | Smart Speaker</span>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
+                      location.pathname === '/product' 
+                        ? 'bg-[#a882ff] shadow-[0_0_8px_#a882ff]' 
+                        : 'bg-white/20 group-hover:bg-white/50'
+                    }`} />
+                    <span className="text-sm sm:text-base font-semibold tracking-tight whitespace-nowrap">LUCA ●● | Smart Speaker</span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-purple-400/50 group-hover:text-purple-300 group-hover:translate-x-1 transition-all duration-200 shrink-0 ml-2" />
+                  <ArrowRight className={`w-4 h-4 shrink-0 ml-2 transition-all duration-200 ${
+                    location.pathname === '/product'
+                      ? 'text-[#a882ff]'
+                      : 'text-white/25 group-hover:text-white/70 group-hover:translate-x-1'
+                  }`} />
                 </Link>
 
                 {/* Nav Option 2: LFM */}
@@ -172,15 +180,23 @@ const Navbar = ({ openContactModal }) => {
                   onClick={(e) => handleNavClick(e, '/ai')}
                   className={`group flex items-center justify-between py-3 px-4 rounded-2xl transition-all duration-200 ${
                     location.pathname === '/ai' 
-                      ? 'bg-purple-500/15 text-white border border-purple-500/30' 
-                      : 'text-white/80 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.09]'
+                      ? 'bg-[#512da8]/15 border border-[#a882ff]/35 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_20px_rgba(81,45,168,0.15)]' 
+                      : 'text-white/75 hover:text-white hover:bg-white/[0.04] active:bg-white/[0.07] border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    {location.pathname === '/ai' && <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />}
-                    <span className="text-sm font-semibold tracking-wide whitespace-nowrap">LFM</span>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
+                      location.pathname === '/ai' 
+                        ? 'bg-[#a882ff] shadow-[0_0_8px_#a882ff]' 
+                        : 'bg-white/20 group-hover:bg-white/50'
+                    }`} />
+                    <span className="text-sm sm:text-base font-semibold tracking-tight whitespace-nowrap">LFM</span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-purple-400/50 group-hover:text-purple-300 group-hover:translate-x-1 transition-all duration-200 shrink-0 ml-2" />
+                  <ArrowRight className={`w-4 h-4 shrink-0 ml-2 transition-all duration-200 ${
+                    location.pathname === '/ai'
+                      ? 'text-[#a882ff]'
+                      : 'text-white/25 group-hover:text-white/70 group-hover:translate-x-1'
+                  }`} />
                 </Link>
 
                 {/* Nav Option 3: Blog */}
@@ -188,20 +204,28 @@ const Navbar = ({ openContactModal }) => {
                   to="/blog" 
                   onClick={(e) => handleNavClick(e, '/blog')}
                   className={`group flex items-center justify-between py-3 px-4 rounded-2xl transition-all duration-200 ${
-                    location.pathname === '/blog' 
-                      ? 'bg-purple-500/15 text-white border border-purple-500/30' 
-                      : 'text-white/80 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.09]'
+                    location.pathname === '/blog' || location.pathname.startsWith('/blog/')
+                      ? 'bg-[#512da8]/15 border border-[#a882ff]/35 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_20px_rgba(81,45,168,0.15)]' 
+                      : 'text-white/75 hover:text-white hover:bg-white/[0.04] active:bg-white/[0.07] border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    {location.pathname === '/blog' && <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />}
-                    <span className="text-sm font-semibold tracking-wide whitespace-nowrap">Blog</span>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
+                      location.pathname === '/blog' || location.pathname.startsWith('/blog/')
+                        ? 'bg-[#a882ff] shadow-[0_0_8px_#a882ff]' 
+                        : 'bg-white/20 group-hover:bg-white/50'
+                    }`} />
+                    <span className="text-sm sm:text-base font-semibold tracking-tight whitespace-nowrap">Blog</span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-purple-400/50 group-hover:text-purple-300 group-hover:translate-x-1 transition-all duration-200 shrink-0 ml-2" />
+                  <ArrowRight className={`w-4 h-4 shrink-0 ml-2 transition-all duration-200 ${
+                    location.pathname === '/blog' || location.pathname.startsWith('/blog/')
+                      ? 'text-[#a882ff]'
+                      : 'text-white/25 group-hover:text-white/70 group-hover:translate-x-1'
+                  }`} />
                 </Link>
 
                 {/* Divider */}
-                <div className="my-1.5 border-t border-white/[0.08]" />
+                <div className="my-1 border-t border-white/[0.08]" />
 
                 {/* Nav Option 4: Contact Us CTA */}
                 <button 
@@ -209,7 +233,7 @@ const Navbar = ({ openContactModal }) => {
                     setIsMobileMenuOpen(false);
                     if (openContactModal) openContactModal();
                   }}
-                  className="group/cta w-full py-3 px-5 rounded-2xl text-center font-bold text-white text-sm bg-gradient-to-r from-[#512da8] to-[#4c1d95] border border-purple-500/40 shadow-[0_4px_20px_rgba(81,45,168,0.35)] hover:shadow-[0_4px_28px_rgba(124,58,237,0.5)] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+                  className="group/cta w-full py-3.5 px-5 rounded-2xl text-center font-semibold text-white text-sm sm:text-base bg-gradient-to-r from-[#512da8] to-[#4c1d95] border border-purple-500/40 shadow-[0_4px_20px_rgba(81,45,168,0.35)] hover:shadow-[0_4px_28px_rgba(124,58,237,0.5)] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
                 >
                   <span>Contact Us</span>
                   <ArrowRight className="w-4 h-4 text-purple-300 group-hover/cta:translate-x-1 transition-transform shrink-0" />
