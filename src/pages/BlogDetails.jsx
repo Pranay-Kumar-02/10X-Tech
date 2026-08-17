@@ -16,7 +16,7 @@ const BlogDetails = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  const post = blogPosts.find(p => p.id === id);
+  const post = blogPosts.find(p => p.id === id || (id === 'slm-architecture-guide' && p.id === 'guide-placeholder'));
 
   if (!post) {
     return <Navigate to="/blog" />;
