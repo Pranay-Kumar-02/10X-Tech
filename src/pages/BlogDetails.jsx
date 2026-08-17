@@ -16,13 +16,18 @@ const BlogDetails = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  const post = blogPosts.find(p => p.id === id || (id === 'slm-architecture-guide' && p.id === 'guide-placeholder'));
+  const post = blogPosts.find(p => 
+    p.id === id || 
+    (p.id === 'guide' && (id === 'guide-placeholder' || id === 'slm-architecture-guide' || id === 'slm-guide')) ||
+    (p.id === 'announcements' && id === 'announcement-placeholder') ||
+    (p.id === 'research' && id === 'research-placeholder')
+  );
 
   if (!post) {
     return <Navigate to="/blog" />;
   }
 
-  const otherPosts = blogPosts.filter(p => p.id !== id);
+  const otherPosts = blogPosts.filter(p => p.id !== post.id && p.id !== id);
 
   return (
     <div className="min-h-[100svh] bg-black text-white selection:bg-[#512da8]/30 font-sans relative w-full flex flex-col overflow-x-hidden">
@@ -51,7 +56,7 @@ const BlogDetails = () => {
             )}
 
             <h1 className="text-white text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.15] mb-4 sm:mb-6 mx-auto px-2">
-              {post.title}
+              {post.displayTitle || post.title}
             </h1>
             
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
@@ -201,7 +206,7 @@ const BlogDetails = () => {
                   </div>
                   
                   <h3 className="text-white text-xl font-bold tracking-tight leading-[1.3] group-hover:text-[#512da8] transition-colors duration-300">
-                    {relatedPost.title}
+                    {relatedPost.displayTitle || relatedPost.title}
                   </h3>
                 </Link>
               ))}

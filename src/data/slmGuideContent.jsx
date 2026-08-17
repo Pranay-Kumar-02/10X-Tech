@@ -110,7 +110,7 @@ const SlmGuideContent = () => {
         </p>
 
         {/* // Sub Heading: Economics // */}
-        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]/40">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Economics</h3>
           <p className="leading-relaxed">
             Cloud inference is metered by input and output tokens, so even small per-token costs can become significant at scale.<Cite targets={[5, 6, 12, 13]} /> The better an AI becomes, the more people tend to use it. “Sam Altman said OpenAI was losing money on its $200-per-month ChatGPT Pro plan because users were using it more than expected.<Cite targets={[7]} />” For a large user base, higher usage means a continually growing API bill.
@@ -121,7 +121,7 @@ const SlmGuideContent = () => {
         </div>
 
         {/* // Sub Heading: Predictable workloads // */}
-        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]/40">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Predictable workloads</h3>
           <p className="leading-relaxed">
             An LLM is useful when the user can surprise it; an SLM is useful when the developer can often predict the workload. If the same kinds of questions arrive repeatedly, or nearly every request belongs to one problem, type, or curriculum, the model does not need to cover the rest of the world. That is the setting in which local deployment and specialized training can line up with the actual job.
@@ -129,7 +129,7 @@ const SlmGuideContent = () => {
         </div>
 
         {/* // Sub Heading: Local inference // */}
-        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]/40">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Local inference</h3>
           <p className="leading-relaxed">
             An SLM can run directly on the device, so data does not need to leave your phone, speaker, laptop, or computer. This can also avoid server maintenance, downtime, peak-usage issues, and per-request API costs. Local inference keeps sensitive data within the device while using its own compute, memory, and power, making it especially useful where privacy, reliability, or offline operation matters.
@@ -163,18 +163,18 @@ const SlmGuideContent = () => {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* // Sub Heading: Narrow domains // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Narrow domains</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Narrow domains</h3>
             <p className="leading-relaxed text-[#bbb]">
               Examples include a model for a particular textbook series, troubleshooting one product family, classifying or extracting standard documents, or handling one language or workflow. A narrow domain also makes it easier to define what good performance looks like.
             </p>
           </div>
 
           {/* // Sub Heading: Structured output // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Structured output</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Structured output</h3>
             <p className="leading-relaxed text-[#bbb]">
               Some AI tasks are not really conversation problems. Suppose the system receives: “My payment was deducted but the order was not confirmed.” The required output might simply be:
             </p>
@@ -187,32 +187,32 @@ const SlmGuideContent = () => {
           </div>
 
           {/* // Sub Heading: Routing and triage // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Routing and triage</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Routing and triage</h3>
             <p className="leading-relaxed text-[#bbb]">
               A small model can decide whether a request is about billing, homework, or support; which database or tool should handle it; or whether it should go to a larger model. It does not have to solve the final problem.
             </p>
           </div>
 
           {/* // Sub Heading: Retrieval-augmented tasks // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Retrieval-augmented tasks</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Retrieval-augmented tasks</h3>
             <p className="leading-relaxed text-[#bbb]">
               Retrieval-augmented generation changes the problem because the model does not have to carry the entire knowledge base internally. The system can retrieve relevant material and give it to the model, which can then identify the relevant information and answer in a defined format.
             </p>
           </div>
 
           {/* // Sub Heading: High-volume repetitive work // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">High-volume repetitive work</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">High-volume repetitive work</h3>
             <p className="leading-relaxed text-[#bbb]">
               If the same categories of questions arrive repeatedly, a compact model can be trained around that workload instead of using general-purpose capacity for every request.
             </p>
           </div>
 
           {/* // Sub Heading: Latency-sensitive interaction // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Latency-sensitive interaction</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Latency-sensitive interaction</h3>
             <p className="leading-relaxed text-[#bbb]">
               Smart speakers are one example. A user may ask for a timer, a simple fact, a device action, or a short conversation. A local model can keep these interactions close to the device instead of sending every request through a network round trip.
             </p>
@@ -256,7 +256,7 @@ const SlmGuideContent = () => {
         </p>
 
         {/* // Sub Heading: Memory // */}
-        <div className="space-y-3 pl-4 border-l-2 border-white/10">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Memory</h3>
           <p className="leading-relaxed">
             A model shares memory with the operating system and other applications. For example, 1 billion parameters need roughly 2 GB at FP16 or 0.5 GB at 4-bit precision, just for the weights. The actual requirement is higher because the runtime also needs memory.
@@ -264,7 +264,7 @@ const SlmGuideContent = () => {
         </div>
 
         {/* // Sub Heading: Latency // */}
-        <div className="space-y-3 pl-4 border-l-2 border-white/10">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Latency</h3>
           <p className="leading-relaxed">
             Models generate text token by token, so speed affects how quickly users get an answer. At 40 tokens per second, a 120-token response takes about 3 seconds; at 20 tokens per second, about 6 seconds. Reasoning models can take longer because they may generate many reasoning tokens before the final answer.
@@ -297,42 +297,42 @@ const SlmGuideContent = () => {
           There is no single recipe for building an SLM. You can continue pretraining an existing model, use SFT or LoRA for specialization, use distillation to transfer capabilities from a larger model, or train from scratch when you need full control.
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* // Sub Heading: Continued pretraining // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Continued pretraining</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Continued pretraining</h3>
             <p className="leading-relaxed text-[#bbb]">
               Continued pretraining adapts an existing model to a domain-specific corpus. Data collection, cleaning, deduplication, and quality filtering are often the hardest parts.
             </p>
           </div>
 
           {/* // Sub Heading: Supervised fine-tuning // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Supervised fine-tuning</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Supervised fine-tuning</h3>
             <p className="leading-relaxed text-[#bbb]">
               SFT trains the model on examples of the behavior you want, such as explaining a Class 8 mathematics concept at the right level and in the right format.
             </p>
           </div>
 
           {/* // Sub Heading: Knowledge distillation // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Knowledge distillation</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Knowledge distillation</h3>
             <p className="leading-relaxed text-[#bbb]">
               Distillation uses a larger teacher model to train a smaller student around the capabilities that matter for the target task.<Cite targets={[4, 10]} /> Qwen3 also uses strong-to-weak distillation for its lightweight models.<Cite targets={[11]} />
             </p>
           </div>
 
           {/* // Sub Heading: LoRA and parameter-efficient adaptation // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">LoRA and parameter-efficient adaptation</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">LoRA and parameter-efficient adaptation</h3>
             <p className="leading-relaxed text-[#bbb]">
               LoRA trains a smaller set of additional parameters instead of changing all the model weights, making specialization more practical.<Cite targets={[9]} />
             </p>
           </div>
 
           {/* // Sub Heading: Training from scratch // */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">Training from scratch</h3>
+          <div className="space-y-2 pl-4 border-l-2 border-[#512da8]">
+            <h3 className="text-xl font-bold text-white">Training from scratch</h3>
             <p className="leading-relaxed text-[#bbb]">
               Training from scratch gives you control over the architecture, tokenizer, data, languages, and objectives, but also requires building the training and evaluation pipeline yourself.
             </p>
@@ -361,7 +361,7 @@ const SlmGuideContent = () => {
         </p>
 
         {/* // Sub Heading: Fertility // */}
-        <div className="space-y-3 pl-4 border-l-2 border-white/10">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Fertility</h3>
           <p className="leading-relaxed">
             Fertility measures how many tokens are used to represent a given amount of text. Lower fertility generally means fewer tokens and less context and inference work. But the token boundaries also matter: a tokenizer should break words and expressions into useful pieces, not simply minimise the token count.
@@ -369,7 +369,7 @@ const SlmGuideContent = () => {
         </div>
 
         {/* // Sub Heading: Embedding and non-embedding parameters // */}
-        <div className="space-y-3 pl-4 border-l-2 border-white/10">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Embedding and non-embedding parameters</h3>
           <p className="leading-relaxed">
             Embedding parameters map token IDs to vector representations, while non-embedding parameters make up the rest of the model's learned weights. Both are trainable and count toward the model's total size. In a small model, the embedding table can consume a significant part of the parameter budget, making tokenizer and vocabulary design especially important.
@@ -377,7 +377,7 @@ const SlmGuideContent = () => {
         </div>
 
         {/* // Sub Heading: Indian-language tokenization // */}
-        <div className="space-y-3 pl-4 border-l-2 border-white/10">
+        <div className="space-y-3 pl-4 border-l-2 border-[#512da8]">
           <h3 className="text-xl font-bold text-white">Indian-language tokenization</h3>
           <p className="leading-relaxed">
             A user might write “photosynthesis ante enti?” in English script, Telugu script, or a mixture of Telugu and English. A tokenizer needs to handle these real-world forms efficiently, not just clean textbook text.
