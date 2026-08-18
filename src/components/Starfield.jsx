@@ -2,26 +2,32 @@ import React, { useState } from 'react';
 
 const generateStars = () => {
   const newStars = [];
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 220; i++) {
     newStars.push({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 1.2 + 0.8,
-      opacity: Math.random() * 0.3 + 0.6,
-      hasGlow: Math.random() > 0.6,
+      size: Math.random() * 1.3 + 0.6,
+      opacity: Math.random() * 0.4 + 0.3,
+      hasGlow: Math.random() > 0.65,
       delay: Math.random() * 5,
-      duration: Math.random() * 2 + 2 // Smoother, more consistent range
+      duration: Math.random() * 2 + 2.5
     });
   }
   return newStars;
 };
 
-const Starfield = () => {
+const Starfield = ({ masked = true }) => {
   const [stars] = useState(() => generateStars());
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" style={{ maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)' }}>
+    <div 
+      className="absolute inset-0 overflow-hidden pointer-events-none z-0" 
+      style={masked ? { 
+        maskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)', 
+        WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 100%)' 
+      } : {}}
+    >
       {stars.map((star) => (
         <div
           key={star.id}
@@ -36,7 +42,7 @@ const Starfield = () => {
             animationDelay: `${star.delay}s`,
             animationDuration: `${star.duration}s`
           }}
-        ></div>
+        />
       ))}
     </div>
   );
