@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = ({ openContactModal }) => {
@@ -11,6 +11,8 @@ const Navbar = ({ openContactModal }) => {
   const lastScrollYRef = useRef(0);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isHomePage = location.pathname === '/';
 
   const handleNavClick = (e, path) => {
     setIsMobileMenuOpen(false);
@@ -32,7 +34,7 @@ const Navbar = ({ openContactModal }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 20);
+      setIsScrolled(currentScrollY > 15);
       lastScrollYRef.current = currentScrollY;
     };
 
@@ -85,7 +87,7 @@ const Navbar = ({ openContactModal }) => {
         }}
         transition={{ 
           duration: 1.3, 
-          ease: [0.19, 1, 0.22, 1], // Futuristic aerodynamic momentum curve
+          ease: [0.19, 1, 0.22, 1],
           delay: 0.2 
         }}
         onAnimationComplete={() => setHasDocked(true)}
@@ -93,37 +95,56 @@ const Navbar = ({ openContactModal }) => {
       >
         <div className="relative w-full max-w-5xl flex flex-col items-center">
           
-          {/* Main Floating Pill Bar with Docking Glow */}
-          <nav className={`relative w-full px-5 sm:px-7 py-3 flex items-center justify-between pointer-events-auto rounded-full transition-all duration-500 ${
-            isScrolled 
-              ? 'bg-black/85 border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.9)] backdrop-blur-2xl' 
-              : 'bg-black/60 border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl'
-          }`}>
+          {/* Main Floating iOS-Style Glossy Liquid Glass Pill Bar */}
+          <nav 
+            style={isScrolled ? {
+              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(10, 10, 18, 0.45)',
+              backdropFilter: 'blur(28px) saturate(190%)',
+              WebkitBackdropFilter: 'blur(28px) saturate(190%)',
+              boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.3), 0 14px 40px -6px rgba(0, 0, 0, 0.65), 0 0 24px rgba(168, 85, 247, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.16)'
+            } : {
+              background: 'transparent',
+              borderColor: 'transparent',
+              boxShadow: 'none',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none'
+            }}
+            className="relative w-full px-5 sm:px-7 py-2.5 sm:py-3 flex items-center justify-between pointer-events-auto rounded-full transition-all duration-300"
+          >
             
-            {/* Docking Light Sweep Highlight */}
-            <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
-              <motion.div 
-                initial={{ x: '-100%', opacity: 0 }}
-                animate={{ x: '200%', opacity: [0, 0.8, 0] }}
-                transition={{ duration: 1.4, delay: 0.8, ease: 'easeInOut' }}
-                className="w-1/2 h-full bg-gradient-to-r from-transparent via-purple-400/20 to-transparent skew-x-12"
-              />
+            {/* Top Gloss Refraction Sheen */}
+            {isScrolled && (
+              <div className="absolute top-0 inset-x-6 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+            )}
+
+            {/* Left: 'Home' on homepage, full '10X Technologies' Logo on other pages */}
+            <div className="shrink-0 relative z-10 flex items-center">
+              {isHomePage ? (
+                <Link
+                  to="/"
+                  onClick={(e) => handleNavClick(e, '/')}
+                  className="text-sm font-medium tracking-normal text-white hover:text-purple-300 transition-colors duration-200 cursor-pointer flex items-center gap-1.5 px-2 py-1 rounded-full hover:bg-white/5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                  <span>Home</span>
+                </Link>
+              ) : (
+                <Link 
+                  to="/" 
+                  onClick={(e) => handleNavClick(e, '/')} 
+                  className="flex items-center gap-2 cursor-pointer group shrink-0"
+                >
+                  <img 
+                    src="https://i.ibb.co/Y781ky06/Screenshot-2026-05-26-000916-removebg-preview.png"
+                    alt="10X Technologies"
+                    className="h-7 sm:h-8 w-auto object-contain transition-opacity duration-200 group-hover:opacity-100 opacity-90"
+                  />
+                </Link>
+              )}
             </div>
 
-            {/* Left: Brand Logo */}
-            <Link 
-              to="/" 
-              onClick={(e) => handleNavClick(e, '/')} 
-              className="flex items-center gap-2 cursor-pointer group shrink-0 relative z-10"
-            >
-              <img 
-                src="https://i.ibb.co/Y781ky06/Screenshot-2026-05-26-000916-removebg-preview.png"
-                alt="10X Technologies"
-                className="h-7 sm:h-8 w-auto object-contain transition-opacity duration-200 group-hover:opacity-100 opacity-90"
-              />
-            </Link>
-
-            {/* Center: Clean, Highly Readable Minimal Links */}
+            {/* Center: Clean Minimal Nav Links */}
             <div className="hidden md:flex items-center gap-7 lg:gap-9 relative z-10">
               {navLinks.map((item) => {
                 const isActive = location.pathname === item.path || (item.path === '/blog' && location.pathname.startsWith('/blog/'));
@@ -170,7 +191,26 @@ const Navbar = ({ openContactModal }) => {
           <div className={`w-full max-w-sm mt-2 pointer-events-auto md:hidden transition-all duration-300 transform origin-top ${
             isMobileMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none hidden'
           }`}>
-            <div className="bg-black/90 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-2xl flex flex-col gap-2">
+            <div 
+              style={{
+                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(10, 10, 18, 0.9)',
+                backdropFilter: 'blur(28px) saturate(190%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(190%)',
+                boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 0 20px 50px rgba(0, 0, 0, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.15)'
+              }}
+              className="rounded-2xl p-4 flex flex-col gap-2"
+            >
+              <Link 
+                to="/" 
+                onClick={(e) => handleNavClick(e, '/')}
+                className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
+                  isHomePage ? 'text-white bg-white/10 font-semibold' : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                Home
+              </Link>
+              
               {navLinks.map((item) => {
                 const isActive = location.pathname === item.path || (item.path === '/blog' && location.pathname.startsWith('/blog/'));
                 return (

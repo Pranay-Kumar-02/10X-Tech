@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Starfield from '../components/Starfield';
-import HeroSpatial from '../components/HeroSpatial';
-import LiveIntelligenceSurface from '../components/LiveIntelligenceSurface';
+import SectionOneStory from '../components/SectionOneStory';
+import Logos from '../components/Logos';
 import BackingCards from '../components/BackingCards';
 import SLMVisualSimulator from '../components/SLMVisualSimulator';
 import InteractiveModelWorkbench from '../components/InteractiveModelWorkbench';
@@ -37,8 +37,8 @@ const Home = () => {
       {/* Global Noise Overlay */}
       <div className="bg-noise fixed pointer-events-none z-50"></div>
 
-      {/* Upper Area Starfield (Fade into solid pure black below) */}
-      <div className="absolute top-0 left-0 right-0 h-[950px] w-full pointer-events-none z-0 overflow-hidden">
+      {/* Upper Area Starfield (Calm, subtle depth fading smoothly into pure solid black below) */}
+      <div className="absolute top-0 left-0 right-0 h-[1500px] w-full pointer-events-none z-0 overflow-hidden">
         <Starfield masked={true} />
       </div>
 
@@ -46,40 +46,42 @@ const Home = () => {
       <div className="relative z-10">
         <Navbar openContactModal={() => setIsContactModalOpen(true)} />
         
-        {/* 1. Master Executive Positioning Hero & Logos Marquee */}
-        <HeroSpatial />
+        {/* 1. Cinematic Section 1: Static Identity -> Living Intelligence */}
+        <SectionOneStory />
 
-        {/* 2. Signature Live Intelligence Spatial Experience (Language Input -> 3D Field -> Response) */}
-        <LiveIntelligenceSurface />
+        {/* Institutional Partner Logos Marquee */}
+        <div className="w-full relative z-20 mb-12">
+          <Logos />
+        </div>
 
-        {/* 3. Institutional Partner Backing Cards (AWS, MeitY, NVIDIA + Popup Modal) */}
+        {/* 2. Institutional Partner Backing Cards (AWS, MeitY, NVIDIA + Popup Modal) */}
         <BackingCards />
 
-        {/* 4. Deployment Architecture Simulator (Cloud API vs On-Device SLM) */}
+        {/* 3. Deployment Architecture Simulator (Cloud API vs On-Device SLM) */}
         <SLMVisualSimulator />
 
-        {/* 5. 10X Model Catalog & Live Hugging Face Spaces */}
+        {/* 4. 10X Model Catalog & Live Hugging Face Spaces */}
         <InteractiveModelWorkbench />
 
-        {/* 6. Connected 5-Layer 10X Intelligence Stack */}
+        {/* 5. Connected 5-Layer 10X Intelligence Stack */}
         <IntelligenceStack />
 
-        {/* 7. Research & Workbench Artifacts */}
+        {/* 6. Research & Workbench Artifacts */}
         <LabWorkbench />
 
-        {/* 8. Iconic Black Hole Research & Blog Card ("Inside 10X Technologies & LUCA") */}
+        {/* 7. Iconic Black Hole Research & Blog Card ("Inside 10X Technologies & LUCA") */}
         <BlackHoleFeature />
 
-        {/* 9. Smart Speaker Origin Story & Hardware Vehicle */}
+        {/* 8. Smart Speaker Origin Story & Hardware Vehicle */}
         <HardwareShowcase />
 
-        {/* 10. Spatial Visitor Routing Hub */}
+        {/* 9. Spatial Visitor Routing Hub */}
         <SpatialRoutingHub />
 
-        {/* 11. Team Section */}
+        {/* 10. Team Section */}
         <Team />
 
-        {/* 12. Footer */}
+        {/* 11. Footer */}
         <Footer openContactModal={() => setIsContactModalOpen(true)} />
       </div>
 
