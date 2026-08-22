@@ -296,18 +296,10 @@ const BlogPage = () => {
               </p>
             </div>
           </section>
-
-<<<<<<< HEAD
-          {/* All Blog Grid Section */}
-          <section className="relative z-20 w-full max-w-[1360px] mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-16 sm:pb-24">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-x-8 md:gap-y-12 lg:gap-y-16">
-              {blogPosts.filter(post => post.id === 'guide').map((post) => (
-=======
           {/* All Blog Grid Section (Showing only approved SLM Guide card) */}
           <section className="relative z-20 w-full max-w-[1360px] mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-x-8 md:gap-y-12 lg:gap-y-16">
               {visiblePosts.map((post) => (
->>>>>>> upstream/main
                 <Link 
                   to={`/blog/${post.id}`}
                   key={post.id} 
@@ -315,13 +307,6 @@ const BlogPage = () => {
                 >
                   {/* Thumbnail */}
                   <div className={`relative w-full aspect-[4/3] rounded-[24px] overflow-hidden mb-6 border border-white/10 group-hover:border-[#512da8]/40 transition-all duration-500 ${post.imageBg || 'bg-[#0a0a0f]'}`}>
-<<<<<<< HEAD
-                    <img 
-                      src={post.image} 
-                      alt={post.title} 
-                      className={`w-full h-full ${post.imageFit || 'object-cover'} ${post.imagePadding || ''}`}
-                    />
-=======
                     {post.coverText ? (
                       <div className="w-full h-full flex flex-col justify-center items-center p-6 bg-black relative overflow-hidden group-hover:bg-[#050508] transition-colors duration-500">
                         {/* Scattered White Pixel Dots matching home background */}
@@ -361,7 +346,6 @@ const BlogPage = () => {
                         className={`w-full h-full ${post.imageFit || 'object-cover'} ${post.imagePadding || ''}`}
                       />
                     )}
->>>>>>> upstream/main
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
 
