@@ -295,9 +295,9 @@ const BlogPage = () => {
           </section>
 
           {/* All Blog Grid Section */}
-          <section className="relative z-20 w-full max-w-[1360px] mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12">
+          <section className="relative z-20 w-full max-w-[1360px] mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-16 sm:pb-24">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-x-8 md:gap-y-12 lg:gap-y-16">
-              {blogPosts.map((post) => (
+              {blogPosts.filter(post => post.id === 'guide').map((post) => (
                 <Link 
                   to={`/blog/${post.id}`}
                   key={post.id} 
@@ -305,45 +305,11 @@ const BlogPage = () => {
                 >
                   {/* Thumbnail */}
                   <div className={`relative w-full aspect-[4/3] rounded-[24px] overflow-hidden mb-6 border border-white/10 group-hover:border-[#512da8]/40 transition-all duration-500 ${post.imageBg || 'bg-[#0a0a0f]'}`}>
-                    {post.coverText ? (
-                      <div className="w-full h-full flex flex-col justify-center items-center p-6 bg-black relative overflow-hidden group-hover:bg-[#050508] transition-colors duration-500">
-                        {/* Scattered White Pixel Dots matching home background */}
-                        <div className="absolute inset-0 pointer-events-none select-none">
-                          <svg className="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity duration-500" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="15%" y="22%" width="2.5" height="2.5" fill="#ffffff" opacity="0.9" />
-                            <rect x="35%" y="12%" width="2" height="2" fill="#ffffff" opacity="0.7" />
-                            <rect x="42%" y="8%" width="3" height="3" fill="#ffffff" opacity="1" />
-                            <rect x="48%" y="24%" width="2" height="2" fill="#ffffff" opacity="0.6" />
-                            <rect x="28%" y="18%" width="2" height="2" fill="#ffffff" opacity="0.8" />
-                            <rect x="80%" y="28%" width="2" height="2" fill="#ffffff" opacity="0.8" />
-                            <rect x="86%" y="34%" width="2.5" height="2.5" fill="#ffffff" opacity="0.9" />
-                            <rect x="30%" y="45%" width="3" height="3" fill="#ffffff" opacity="0.85" />
-                            <rect x="29%" y="58%" width="2.5" height="2.5" fill="#ffffff" opacity="0.7" />
-                            <rect x="22%" y="71%" width="2" height="2" fill="#ffffff" opacity="0.6" />
-                            <rect x="50%" y="82%" width="2" height="2" fill="#ffffff" opacity="0.5" />
-                            <rect x="60%" y="78%" width="2.5" height="2.5" fill="#ffffff" opacity="0.8" />
-                            <rect x="70%" y="65%" width="2" height="2" fill="#ffffff" opacity="0.7" />
-                            <rect x="97%" y="52%" width="2" height="2" fill="#ffffff" opacity="0.9" />
-                            <rect x="95%" y="88%" width="2.5" height="2.5" fill="#ffffff" opacity="1" />
-                            <rect x="91%" y="92%" width="2" height="2" fill="#ffffff" opacity="0.6" />
-                            <rect x="12%" y="88%" width="2" height="2" fill="#ffffff" opacity="0.5" />
-                            <rect x="68%" y="15%" width="2" height="2" fill="#ffffff" opacity="0.6" />
-                            <rect x="74%" y="40%" width="2" height="2" fill="#ffffff" opacity="0.4" />
-                            <rect x="18%" y="50%" width="2" height="2" fill="#ffffff" opacity="0.5" />
-                            <rect x="62%" y="32%" width="2.5" height="2.5" fill="#ffffff" opacity="0.75" />
-                          </svg>
-                        </div>
-                        <span className="relative z-10 text-white text-2xl md:text-3xl font-extrabold tracking-widest uppercase text-center font-sans select-none">
-                          {post.coverText}
-                        </span>
-                      </div>
-                    ) : (
-                      <img 
-                        src={post.image} 
-                        alt={post.title} 
-                        className={`w-full h-full ${post.imageFit || 'object-cover'} ${post.imagePadding || ''}`}
-                      />
-                    )}
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className={`w-full h-full ${post.imageFit || 'object-cover'} ${post.imagePadding || ''}`}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
 
@@ -370,57 +336,12 @@ const BlogPage = () => {
                     {post.displayTitle || post.title}
                   </h2>
 
-                  {/* Short Description (if present) */}
+                  {/* Short Description */}
                   {post.description && (
                     <p className="text-[#888] text-sm leading-relaxed font-light line-clamp-2">
                       {post.description}
                     </p>
                   )}
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          <TechnicalFiller />
-
-          {/* Research Updates Section (Preserved Original) */}
-          <section className="relative z-20 w-full max-w-[1360px] mx-auto px-6 pb-0 pt-0">
-            <h2 className="text-white text-3xl md:text-5xl font-bold tracking-tight mb-10">
-              Research Updates
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-              {blogPosts.slice(3, 6).map((post) => (
-                <Link 
-                  to={`/blog/${post.id}`}
-                  key={`research-${post.id}`} 
-                  className="group flex flex-col no-cursor-track"
-                >
-                  {/* Thumbnail */}
-                  <div className={`relative w-full aspect-[4/3] rounded-[24px] overflow-hidden mb-6 border border-white/5 group-hover:border-[#512da8]/30 transition-colors duration-500 ${post.imageBg || 'bg-[#0a0a0f]'}`}>
-                    <img 
-                      src={post.image} 
-                      alt={post.title} 
-                      className={`w-full h-full ${post.imageFit || 'object-cover'} ${post.imagePadding || ''}`}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  </div>
-
-                  {/* Meta Info */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#111]">
-                      <Calendar className="w-3.5 h-3.5 text-[#888]" />
-                      <span className="text-[#aaa] text-xs font-medium">{post.date}</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#111]">
-                      <img src={post.authorAvatar} alt={post.authorName} className="w-4 h-4 rounded-full" />
-                      <span className="text-[#aaa] text-xs font-medium">{post.authorName}</span>
-                    </div>
-                  </div>
-                  
-                  {/* Title */}
-                  <h2 className="text-white text-xl md:text-2xl font-bold tracking-tight leading-[1.3] group-hover:text-[#512da8] transition-colors duration-300">
-                    {post.displayTitle || post.title}
-                  </h2>
                 </Link>
               ))}
             </div>

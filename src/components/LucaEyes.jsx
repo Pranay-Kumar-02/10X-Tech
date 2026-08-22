@@ -28,7 +28,7 @@ const LucaEyes = ({
     return () => cancelAnimationFrame(animFrameRef.current);
   }, []);
 
-  // Mouse tracking calculation with increased travel sensitivity
+  // Mouse tracking calculation with responsive travel sensitivity
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (targetFocus) return;
@@ -44,7 +44,7 @@ const LucaEyes = ({
       const angle = Math.atan2(deltaY, deltaX);
 
       // Max eye travel distance in px for responsive gaze
-      const maxTravel = size === 'hero' ? 20 : size === 'large' ? 10 : 6;
+      const maxTravel = size === 'hero' ? 22 : size === 'large' ? 10 : 6;
       
       // Proximity focus calculation across full viewport
       const proximity = Math.max(0, 1 - distance / 1000);
@@ -54,7 +54,7 @@ const LucaEyes = ({
 
       targetOffsetRef.current = {
         x: Math.cos(angle) * (maxTravel * intensity),
-        y: Math.sin(angle) * (maxTravel * intensity * 0.8) // subtle vertical damping
+        y: Math.sin(angle) * (maxTravel * intensity * 0.8)
       };
     };
 
@@ -71,7 +71,7 @@ const LucaEyes = ({
       const deltaX = targetFocus.x - centerX;
       const deltaY = targetFocus.y - centerY;
       const angle = Math.atan2(deltaY, deltaX);
-      const maxTravel = size === 'hero' ? 20 : size === 'large' ? 10 : 6;
+      const maxTravel = size === 'hero' ? 22 : size === 'large' ? 10 : 6;
 
       targetOffsetRef.current = {
         x: Math.cos(angle) * maxTravel,
@@ -102,23 +102,17 @@ const LucaEyes = ({
     setTimeout(() => setIsBlinking(false), 200);
   };
 
-  // Refined capsule width and height
-  const eyeWidth = size === 'hero' 
-    ? 'w-9 sm:w-12 md:w-15 lg:w-18' 
+  // Pure Circular Dimensions for LUCA Eyes
+  const eyeDimension = size === 'hero' 
+    ? 'w-20 h-20 sm:w-26 sm:h-26 md:w-32 md:h-32 lg:w-36 lg:h-36' 
     : size === 'large' 
-    ? 'w-5 sm:w-6' 
-    : 'w-2.5 sm:w-3';
-
-  const eyeHeight = size === 'hero' 
-    ? 'h-22 sm:h-28 md:h-34 lg:h-38' 
-    : size === 'large' 
-    ? 'h-9 sm:h-11' 
-    : 'h-4 sm:h-5';
+    ? 'w-8 h-8 sm:w-10 sm:h-10' 
+    : 'w-4 h-4 sm:w-5 sm:h-5';
 
   const gapSize = size === 'hero' 
-    ? 'gap-4 sm:gap-6 md:gap-7 lg:gap-8' 
+    ? 'gap-6 sm:gap-8 md:gap-10 lg:gap-12' 
     : size === 'large' 
-    ? 'gap-2.5 sm:gap-3' 
+    ? 'gap-3 sm:gap-4' 
     : 'gap-2';
 
   return (
@@ -128,9 +122,9 @@ const LucaEyes = ({
       title="Click to blink"
       className={`inline-flex items-center justify-center ${gapSize} cursor-pointer select-none align-middle ${className}`}
     >
-      {/* Left Eye - Subtle Matte Finish with Restrained Glow */}
+      {/* Left Circular Eye - Ultra-Subtle 0.5% Glow */}
       <div
-        className={`${eyeWidth} ${eyeHeight} rounded-full bg-white transition-transform duration-75 ease-out shadow-[0_0_14px_rgba(255,255,255,0.22)]`}
+        className={`${eyeDimension} rounded-full bg-white transition-transform duration-75 ease-out shadow-[0_0_8px_rgba(255,255,255,0.06)]`}
         style={{
           transform: isBlinking 
             ? `scaleY(0.08)` 
@@ -138,9 +132,9 @@ const LucaEyes = ({
         }}
       />
 
-      {/* Right Eye - Subtle Matte Finish with Restrained Glow */}
+      {/* Right Circular Eye - Ultra-Subtle 0.5% Glow */}
       <div
-        className={`${eyeWidth} ${eyeHeight} rounded-full bg-white transition-transform duration-75 ease-out shadow-[0_0_14px_rgba(255,255,255,0.22)]`}
+        className={`${eyeDimension} rounded-full bg-white transition-transform duration-75 ease-out shadow-[0_0_8px_rgba(255,255,255,0.06)]`}
         style={{
           transform: isBlinking 
             ? `scaleY(0.08)` 

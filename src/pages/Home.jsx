@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import Starfield from '../components/Starfield';
-import SectionOneStory from '../components/SectionOneStory';
+import Hero from '../components/Hero';
 import Logos from '../components/Logos';
-import BackingCards from '../components/BackingCards';
-import SLMVisualSimulator from '../components/SLMVisualSimulator';
-import InteractiveModelWorkbench from '../components/InteractiveModelWorkbench';
-import IntelligenceStack from '../components/IntelligenceStack';
-import LabWorkbench from '../components/LabWorkbench';
-import BlackHoleFeature from '../components/BlackHoleFeature';
-import HardwareShowcase from '../components/HardwareShowcase';
-import SpatialRoutingHub from '../components/SpatialRoutingHub';
 import Team from '../components/Team';
 import Footer from '../components/Footer';
 import ContactModal from '../components/ContactModal';
+import Starfield from '../components/Starfield';
+import FeatureLinks from '../components/FeatureLinks';
+import BackingCards from '../components/BackingCards';
+import PageGateways from '../components/PageGateways';
+import TechnicalFiller from '../components/TechnicalFiller';
 
 const Home = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -32,56 +28,44 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-[100svh] bg-black text-white selection:bg-purple-500/30 font-sans relative w-full flex flex-col overflow-x-hidden">
+    <div className="min-h-[100svh] bg-black text-white selection:bg-purple-500/30 font-sans relative w-full flex flex-col">
 
       {/* Global Noise Overlay */}
       <div className="bg-noise fixed pointer-events-none z-50"></div>
 
-      {/* Upper Area Starfield (Calm, subtle depth fading smoothly into pure solid black below) */}
-      <div className="absolute top-0 left-0 right-0 h-[1500px] w-full pointer-events-none z-0 overflow-hidden">
-        <Starfield masked={true} />
+      {/* Blueprint Grid Overlay Removed */}
+
+      {/* Starfield */}
+      <div className="absolute top-0 left-0 right-0 h-[1000px] w-full pointer-events-none z-0 overflow-hidden">
+        <Starfield />
       </div>
+
+
+
+
 
       {/* Main Content Container */}
       <div className="relative z-10">
         <Navbar openContactModal={() => setIsContactModalOpen(true)} />
-        
-        {/* 1. Cinematic Section 1: Static Identity -> Living Intelligence */}
-        <SectionOneStory />
+        <Hero openContactModal={() => setIsContactModalOpen(true)} />
+        <Logos />
 
-        {/* Institutional Partner Logos Marquee */}
-        <div className="w-full relative z-20 mb-12">
-          <Logos />
+        <div className="relative z-20 w-full max-w-[1360px] mx-auto px-6 pt-4 pb-2 text-left mt-4">
+          <h2 className="text-tier-1">Announcements</h2>
         </div>
 
-        {/* 2. Institutional Partner Backing Cards (AWS, MeitY, NVIDIA + Popup Modal) */}
         <BackingCards />
+        <TechnicalFiller />
 
-        {/* 3. Deployment Architecture Simulator (Cloud API vs On-Device SLM) */}
-        <SLMVisualSimulator />
+        <FeatureLinks mode="home" />
+        <TechnicalFiller />
 
-        {/* 4. 10X Model Catalog & Live Hugging Face Spaces */}
-        <InteractiveModelWorkbench />
+        <PageGateways />
+        <TechnicalFiller />
 
-        {/* 5. Connected 5-Layer 10X Intelligence Stack */}
-        <IntelligenceStack />
-
-        {/* 6. Research & Workbench Artifacts */}
-        <LabWorkbench />
-
-        {/* 7. Iconic Black Hole Research & Blog Card ("Inside 10X Technologies & LUCA") */}
-        <BlackHoleFeature />
-
-        {/* 8. Smart Speaker Origin Story & Hardware Vehicle */}
-        <HardwareShowcase />
-
-        {/* 9. Spatial Visitor Routing Hub */}
-        <SpatialRoutingHub />
-
-        {/* 10. Team Section */}
         <Team />
+        <TechnicalFiller />
 
-        {/* 11. Footer */}
         <Footer openContactModal={() => setIsContactModalOpen(true)} />
       </div>
 
