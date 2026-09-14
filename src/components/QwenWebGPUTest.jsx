@@ -18,6 +18,7 @@ import {
     warmupQwen,
     isQwenWarmedUp
 } from '../services/qwenService.js';
+import { runNumericalValidation, runMicroBenchmark } from '../services/gpuArgMaxBenchmark.js';
 
 const BENCHMARK_QUERIES = [
     { label: 'Q1: Factual 10X', query: 'What is Akshara and what does it do?' },
@@ -46,6 +47,10 @@ const QwenWebGPUTest = () => {
     const [warmupTime, setWarmupTime] = useState(null);
     const [lastMetrics, setLastMetrics] = useState(null);
 
+    const [numericalResults, setNumericalResults] = useState(null);
+    const [microBenchmarkResults, setMicroBenchmarkResults] = useState(null);
+    const [phase3Status, setPhase3Status] = useState('');
+
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -69,6 +74,7 @@ const QwenWebGPUTest = () => {
                     const generator = await getQwenGenerator();
                     if (!cancelled) {
                         generatorRef.current = generator;
+                        window.__GENERATOR__ = generator;
                         setIsReady(true);
                         setStatus('Qwen3-0.6B is ready (shared singleton).');
                         setLoadTime(0);
@@ -98,6 +104,7 @@ const QwenWebGPUTest = () => {
                 if (cancelled) return;
 
                 generatorRef.current = generator;
+                window.__GENERATOR__ = generator;
 
                 const elapsed = (performance.now() - start) / 1000;
 
@@ -328,6 +335,184 @@ const QwenWebGPUTest = () => {
         }
     };
 
+    const [abResults, setAbResults] = useState(null);
+    const [abProgress, setAbProgress] = useState('');
+
+    const runControlledAB = async () => {
+        if (!generatorRef.current || isLoading) return;
+        setIsLoading(true);
+        setAbProgress('Initializing A/B benchmark...');
+        setAbResults(null);
+        setError('');
+
+        try {
+            const generator = generatorRef.current;
+            setAbProgress('Warming WebGPU shaders...');
+            await warmupQwen(generator);
+            setAbProgress('Normalizing warm state...');
+            await generator('Warmup pass', { max_new_tokens: 1, do_sample: false });
+
+            const results = [];
+            const median = (arr) => {
+                if (arr.length === 0) return 0;
+                const s = [...arr].sort((a, b) => a - b);
+                const mid = Math.floor(s.length / 2);
+                return s.length % 2 !== 0 ? s[mid] : Number(((s[mid - 1] + s[mid]) / 2).toFixed(2));
+            };
+
+            for (let qIdx = 0; qIdx < BENCHMARK_QUERIES.length; qIdx++) {
+                const bq = BENCHMARK_QUERIES[qIdx];
+                const queryText = bq.query;
+
+                const t0Ret = performance.now();
+                const ragResult = retrieveKnowledge(queryText, { topK: 3, minScore: 0.8 });
+                const retMs = performance.now() - t0Ret;
+
+                if (ragResult.verificationAnalysis?.isInsufficient && ragResult.verificationAnalysis?.suggestedAnswer) {
+                    results.push({
+                        id: `Q${qIdx + 1}`,
+                        label: bq.label,
+                        query: queryText,
+                        isGuarded: true,
+                        answer: ragResult.verificationAnalysis.suggestedAnswer,
+                        metricsA: { promptTokens: 0, ttftMs: 0, genMs: 0, totalMs: 0, tokPerSec: 0, tokenCount: 0, response: ragResult.verificationAnalysis.suggestedAnswer },
+                        metricsB: { promptTokens: 0, ttftMs: 0, genMs: 0, totalMs: 0, tokPerSec: 0, tokenCount: 0, response: ragResult.verificationAnalysis.suggestedAnswer },
+                        runsA: [],
+                        runsB: []
+                    });
+                    continue;
+                }
+
+                let knowledgeContext = '';
+                if (ragResult.hasMatch && ragResult.chunks.length > 0) {
+                    knowledgeContext = formatKnowledgeContext(ragResult.chunks, { verificationAnalysis: ragResult.verificationAnalysis });
+                }
+                const systemContent = buildSystemPrompt(knowledgeContext);
+                const isIdentity = isIdentityQuery(queryText);
+                const messages = [
+                    { role: 'system', content: systemContent },
+                    { role: 'user', content: queryText }
+                ];
+                const prompt = generator.tokenizer.apply_chat_template(messages, {
+                    tokenize: false,
+                    add_generation_prompt: true,
+                    enable_thinking: false
+                });
+                const promptTokens = generator.tokenizer.encode(prompt).length;
+
+                const runsA = [];
+                const runsB = [];
+
+                for (let iter = 1; iter <= 3; iter++) {
+                    setAbProgress(`[${bq.label}] Iter ${iter}/3: Running A (Sampling)...`);
+                    let tFirstA = null;
+                    let countA = 0;
+                    let rawA = '';
+                    const tStartA = performance.now();
+                    const streamerA = new TextStreamer(generator.tokenizer, {
+                        skip_prompt: true,
+                        skip_special_tokens: true,
+                        callback_function: (text) => {
+                            if (tFirstA === null) tFirstA = performance.now();
+                            countA++;
+                            rawA += text;
+                        }
+                    });
+                    await generator(prompt, {
+                        max_new_tokens: 160,
+                        do_sample: true,
+                        temperature: 0.2,
+                        top_k: 3,
+                        streamer: streamerA
+                    });
+                    const tEndA = performance.now();
+                    const ttftA = tFirstA ? tFirstA - tStartA : 0;
+                    const genA = tEndA - tStartA;
+                    const tokPerSecA = genA > 0 ? (countA / (genA / 1000)) : 0;
+                    runsA.push({
+                        ttftMs: Number(ttftA.toFixed(1)),
+                        genMs: Number(genA.toFixed(1)),
+                        totalMs: Number((genA + retMs).toFixed(1)),
+                        tokPerSec: Number(tokPerSecA.toFixed(2)),
+                        tokenCount: countA,
+                        response: formatAssistantResponseStyle(cleanOutput(rawA), isIdentity)
+                    });
+
+                    setAbProgress(`[${bq.label}] Iter ${iter}/3: Running B (Greedy)...`);
+                    let tFirstB = null;
+                    let countB = 0;
+                    let rawB = '';
+                    const tStartB = performance.now();
+                    const streamerB = new TextStreamer(generator.tokenizer, {
+                        skip_prompt: true,
+                        skip_special_tokens: true,
+                        callback_function: (text) => {
+                            if (tFirstB === null) tFirstB = performance.now();
+                            countB++;
+                            rawB += text;
+                        }
+                    });
+                    await generator(prompt, {
+                        max_new_tokens: 160,
+                        do_sample: false,
+                        streamer: streamerB
+                    });
+                    const tEndB = performance.now();
+                    const ttftB = tFirstB ? tFirstB - tStartB : 0;
+                    const genB = tEndB - tStartB;
+                    const tokPerSecB = genB > 0 ? (countB / (genB / 1000)) : 0;
+                    runsB.push({
+                        ttftMs: Number(ttftB.toFixed(1)),
+                        genMs: Number(genB.toFixed(1)),
+                        totalMs: Number((genB + retMs).toFixed(1)),
+                        tokPerSec: Number(tokPerSecB.toFixed(2)),
+                        tokenCount: countB,
+                        response: formatAssistantResponseStyle(cleanOutput(rawB), isIdentity)
+                    });
+                }
+
+                results.push({
+                    id: `Q${qIdx + 1}`,
+                    label: bq.label,
+                    query: queryText,
+                    isGuarded: false,
+                    promptTokens,
+                    metricsA: {
+                        promptTokens,
+                        ttftMs: median(runsA.map(r => r.ttftMs)),
+                        genMs: median(runsA.map(r => r.genMs)),
+                        totalMs: median(runsA.map(r => r.totalMs)),
+                        tokPerSec: median(runsA.map(r => r.tokPerSec)),
+                        tokenCount: median(runsA.map(r => r.tokenCount)),
+                        response: runsA[0].response
+                    },
+                    metricsB: {
+                        promptTokens,
+                        ttftMs: median(runsB.map(r => r.ttftMs)),
+                        genMs: median(runsB.map(r => r.genMs)),
+                        totalMs: median(runsB.map(r => r.totalMs)),
+                        tokPerSec: median(runsB.map(r => r.tokPerSec)),
+                        tokenCount: median(runsB.map(r => r.tokenCount)),
+                        response: runsB[0].response
+                    },
+                    runsA,
+                    runsB
+                });
+            }
+
+            window.__BENCHMARK_RESULTS__ = results;
+            setAbResults(results);
+            setAbProgress('Controlled A/B Benchmark Complete.');
+            setStatus('Controlled A/B Benchmark Complete.');
+        } catch (err) {
+            console.error('A/B Benchmark error:', err);
+            setError(err?.message || 'A/B Benchmark failed');
+            setAbProgress('A/B Benchmark Failed');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const resetModel = () => {
         resetQwenGenerator();
         generatorRef.current = null;
@@ -342,6 +527,59 @@ const QwenWebGPUTest = () => {
         setTimeout(() => {
             window.location.reload();
         }, 300);
+    };
+
+    const getWebGpuDevice = async () => {
+        if (!navigator.gpu) throw new Error('WebGPU not supported on this browser');
+        const adapter = await navigator.gpu.requestAdapter();
+        if (!adapter) throw new Error('Failed to acquire WebGPU adapter');
+        const requiredFeatures = [];
+        if (adapter.features.has('shader-f16')) {
+            requiredFeatures.push('shader-f16');
+        }
+        return await adapter.requestDevice({ requiredFeatures });
+    };
+
+    const handleRunNumericalValidation = async () => {
+        if (isLoading) return;
+        setIsLoading(true);
+        setPhase3Status('Running GPU ArgMax Numerical Validation (8 test matrices)...');
+        setError('');
+        try {
+            const device = await getWebGpuDevice();
+            const res = await runNumericalValidation(device);
+            setNumericalResults(res);
+            window.__NUMERICAL_RESULTS__ = res;
+            setPhase3Status(res.allPassed ? '✓ All 8 Numerical Tests PASSED (100% Match with CPU)' : '⚠️ Numerical Validation Discrepancy Detected');
+            setStatus('GPU ArgMax Numerical Validation Complete.');
+        } catch (e) {
+            console.error('Numerical validation error:', e);
+            setError(e.message || 'Numerical validation failed');
+            setPhase3Status('Numerical Validation Failed: ' + e.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRunMicroBenchmark = async () => {
+        if (isLoading) return;
+        setIsLoading(true);
+        setPhase3Status('Running GPU ArgMax Micro-Benchmark (10 iterations Path A vs Path B)...');
+        setError('');
+        try {
+            const device = await getWebGpuDevice();
+            const res = await runMicroBenchmark(device, 10);
+            setMicroBenchmarkResults(res);
+            window.__MICRO_BENCHMARK_RESULTS__ = res;
+            setPhase3Status(`✓ Micro-Benchmark Complete: ${res.speedup}x speedup (${res.pathA.p50}ms -> ${res.pathB.p50}ms), -${res.bandwidthReductionPct}% bus transfer`);
+            setStatus('GPU ArgMax Micro-Benchmark Complete.');
+        } catch (e) {
+            console.error('Micro-benchmark error:', e);
+            setError(e.message || 'Micro-benchmark failed');
+            setPhase3Status('Micro-Benchmark Failed: ' + e.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -442,6 +680,39 @@ const QwenWebGPUTest = () => {
                     </button>
 
                     <button
+                        id="run-controlled-ab-btn"
+                        type="button"
+                        onClick={runControlledAB}
+                        disabled={!isReady || isLoading}
+                        className="text-xs px-3.5 py-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 font-medium transition disabled:opacity-40"
+                        title="Run strict 3-run alternating A/B benchmark (Production Sampling vs Greedy Decoding)"
+                    >
+                        🧪 Run Controlled A/B (Sampling vs Greedy)
+                    </button>
+
+                    <button
+                        id="run-phase3-numerical-btn"
+                        type="button"
+                        onClick={handleRunNumericalValidation}
+                        disabled={isLoading}
+                        className="text-xs px-3.5 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 font-medium transition disabled:opacity-40"
+                        title="Run GPU ArgMax Numerical Validation across 8 test distributions (CPU vs GPU token match)"
+                    >
+                        🔬 Validate GPU ArgMax (Numerical)
+                    </button>
+
+                    <button
+                        id="run-phase3-microbench-btn"
+                        type="button"
+                        onClick={handleRunMicroBenchmark}
+                        disabled={isLoading}
+                        className="text-xs px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-medium transition disabled:opacity-40"
+                        title="Benchmark Path A (608 KB readback) vs Path B (8 B GPU ArgMax) over 10 iterations"
+                    >
+                        ⚡ Benchmark GPU ArgMax vs 608KB
+                    </button>
+
+                    <button
                         type="button"
                         onClick={resetModel}
                         disabled={isLoading}
@@ -451,6 +722,155 @@ const QwenWebGPUTest = () => {
                         ↻ Reset Model (Test Cold)
                     </button>
                 </div>
+
+                {phase3Status && (
+                    <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-3 text-xs text-emerald-300 font-mono">
+                        ⚙️ {phase3Status}
+                    </div>
+                )}
+
+                {abProgress && (
+                    <div className="mb-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 p-3 text-xs text-cyan-300 font-mono animate-pulse">
+                        ⏳ {abProgress}
+                    </div>
+                )}
+
+                {numericalResults && (
+                    <div className="mb-5 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 text-xs space-y-3">
+                        <div className="font-semibold text-emerald-300 uppercase tracking-wider text-[11px] flex justify-between">
+                            <span>GPU ArgMax Numerical Correctness (CPU vs GPU)</span>
+                            <span className={numericalResults.allPassed ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>
+                                {numericalResults.allPassed ? "✓ 8/8 Tests Passed (100% Match)" : "⚠️ Discrepancy Found"}
+                            </span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-[11px] border-collapse">
+                                <thead>
+                                    <tr className="border-b border-white/10 text-white/50">
+                                        <th className="p-1.5">Distribution Pattern</th>
+                                        <th className="p-1.5">CPU Token ID</th>
+                                        <th className="p-1.5">GPU Token ID</th>
+                                        <th className="p-1.5">CPU Score</th>
+                                        <th className="p-1.5">GPU Score</th>
+                                        <th className="p-1.5">Equivalence</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {numericalResults.tests.map((t, idx) => (
+                                        <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02]">
+                                            <td className="p-1.5 font-medium text-white/90">{t.name}</td>
+                                            <td className="p-1.5 font-mono text-purple-300">{t.cpuToken}</td>
+                                            <td className="p-1.5 font-mono text-emerald-300">{t.gpuToken}</td>
+                                            <td className="p-1.5 font-mono text-white/70">{t.cpuScore.toFixed(4)}</td>
+                                            <td className="p-1.5 font-mono text-white/70">{t.gpuScore.toFixed(4)}</td>
+                                            <td className="p-1.5 font-bold">
+                                                {t.passed ? <span className="text-emerald-400">✓ EXACT MATCH</span> : <span className="text-red-400">❌ MISMATCH</span>}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {microBenchmarkResults && (
+                    <div className="mb-5 rounded-2xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs space-y-3">
+                        <div className="font-semibold text-amber-300 uppercase tracking-wider text-[11px] flex justify-between">
+                            <span>Micro-Benchmark: 608 KB Readback vs 8-Byte GPU ArgMax (10 Reps)</span>
+                            <span className="text-emerald-400 font-bold">
+                                {microBenchmarkResults.speedup}x Latency Speedup (-{microBenchmarkResults.bandwidthReductionPct}% Bus Transfer)
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+                            <div className="p-2 rounded-xl bg-black/40 border border-white/10">
+                                <div className="text-white/40 uppercase tracking-wider text-[9px]">Bus Transfer / Token</div>
+                                <div className="text-red-400 font-mono font-bold mt-0.5">Path A: {(microBenchmarkResults.pathA.bytes / 1024).toFixed(1)} KB</div>
+                                <div className="text-emerald-400 font-mono font-bold">Path B: {microBenchmarkResults.pathB.bytes} B</div>
+                            </div>
+                            <div className="p-2 rounded-xl bg-black/40 border border-white/10">
+                                <div className="text-white/40 uppercase tracking-wider text-[9px]">Median Latency (p50)</div>
+                                <div className="text-red-400 font-mono font-bold mt-0.5">Path A: {microBenchmarkResults.pathA.p50} ms</div>
+                                <div className="text-emerald-400 font-mono font-bold">Path B: {microBenchmarkResults.pathB.p50} ms</div>
+                            </div>
+                            <div className="p-2 rounded-xl bg-black/40 border border-white/10">
+                                <div className="text-white/40 uppercase tracking-wider text-[9px]">Average Latency</div>
+                                <div className="text-red-400 font-mono font-bold mt-0.5">Path A: {microBenchmarkResults.pathA.avgMs} ms</div>
+                                <div className="text-emerald-400 font-mono font-bold">Path B: {microBenchmarkResults.pathB.avgMs} ms</div>
+                            </div>
+                            <div className="p-2 rounded-xl bg-black/40 border border-white/10">
+                                <div className="text-white/40 uppercase tracking-wider text-[9px]">GPU Dispatch vs Readback</div>
+                                <div className="text-cyan-300 font-mono mt-0.5">Dispatch: {microBenchmarkResults.pathB.gpuDispatchMs} ms</div>
+                                <div className="text-cyan-300 font-mono">mapAsync: {microBenchmarkResults.pathB.mapAsyncMs} ms</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {abResults && (
+                    <div className="mb-5 rounded-2xl border border-cyan-500/30 bg-cyan-950/20 p-4 text-xs space-y-3">
+                        <div className="font-semibold text-cyan-300 uppercase tracking-wider text-[11px] flex justify-between">
+                            <span>Controlled A/B Benchmark (Median of 3 Runs)</span>
+                            <span className="text-white/40 font-normal">Qwen3-0.6B ONNX WebGPU</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-[11px] border-collapse">
+                                <thead>
+                                    <tr className="border-b border-white/10 text-white/50">
+                                        <th className="p-1.5">Query</th>
+                                        <th className="p-1.5">Prompt Tok</th>
+                                        <th className="p-1.5">Prefill/TTFT A vs B</th>
+                                        <th className="p-1.5">Gen Time A vs B</th>
+                                        <th className="p-1.5">Tok/s A vs B</th>
+                                        <th className="p-1.5">Output Tok A vs B</th>
+                                        <th className="p-1.5">Quality / Grounding</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {abResults.map((r, i) => (
+                                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                                            <td className="p-1.5 font-semibold text-white/80">{r.id}: {r.label}</td>
+                                            <td className="p-1.5 font-mono text-purple-300">{r.metricsA.promptTokens}</td>
+                                            <td className="p-1.5 font-mono">
+                                                {r.isGuarded ? '0ms (Guard)' : `${r.metricsA.ttftMs}ms vs ${r.metricsB.ttftMs}ms`}
+                                            </td>
+                                            <td className="p-1.5 font-mono">
+                                                {r.isGuarded ? '0ms' : `${(r.metricsA.genMs / 1000).toFixed(2)}s vs ${(r.metricsB.genMs / 1000).toFixed(2)}s`}
+                                            </td>
+                                            <td className="p-1.5 font-mono text-cyan-300 font-bold">
+                                                {r.isGuarded ? 'Instant' : `${r.metricsA.tokPerSec} vs ${r.metricsB.tokPerSec}`}
+                                            </td>
+                                            <td className="p-1.5 font-mono">
+                                                {r.isGuarded ? 'Guarded' : `${r.metricsA.tokenCount} vs ${r.metricsB.tokenCount}`}
+                                            </td>
+                                            <td className="p-1.5 text-[10px]">
+                                                {r.isGuarded ? '🛡️ Guarded' : r.metricsB.response.length > 20 ? '✓ Grounded' : '⚠️ Short'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Detailed Generated Text Audit for Quality & Refusal Inspection */}
+                        <div className="mt-3 space-y-2 border-t border-white/10 pt-3">
+                            <div className="font-semibold text-white/60 text-[10px] uppercase tracking-wider">
+                                Generated Output Audit (Format A vs Format B)
+                            </div>
+                            {abResults.map((r, i) => (
+                                <div key={i} className="p-2 rounded-xl bg-black/40 border border-white/5 space-y-1">
+                                    <div className="font-semibold text-purple-300 text-[11px]">{r.id}: {r.label}</div>
+                                    <div className="text-[10px] text-white/70">
+                                        <span className="text-white/40 font-mono">A (Sampling):</span> "{r.metricsA.response || r.answer}"
+                                    </div>
+                                    <div className="text-[10px] text-cyan-200">
+                                        <span className="text-white/40 font-mono">B (Greedy):</span> "{r.metricsB.response || r.answer}"
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Benchmark Preset Pills */}
                 <div className="mb-4">
