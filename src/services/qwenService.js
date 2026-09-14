@@ -33,13 +33,13 @@ export const RUNTIME_TIERS = {
     id: 'TIER_A',
     label: 'High-Performance WebGPU',
     supported: true,
-    topK: 3,
+    topK: 1,
     ragTopK: 3,
     maxNewTokens: 160,
     historyTurns: 4,
     historyLimit: -4,
-    doSample: false,
-    temperature: 0.2,
+    doSample: false, // Approved greedy decoding: avoids CPU-side sampling/Top-K logits scanning
+    temperature: 0.0,
     statusMessage: 'Preparing LUCA AI...',
     readyMessage: 'LUCA is ready.'
   },
@@ -47,12 +47,12 @@ export const RUNTIME_TIERS = {
     id: 'TIER_B',
     label: 'Efficient WebGPU (Memory-Conscious)',
     supported: true,
-    topK: 2,
+    topK: 1,
     ragTopK: 2,
     maxNewTokens: 128,
     historyTurns: 2,
     historyLimit: -2,
-    doSample: false,
+    doSample: false, // Approved greedy decoding
     temperature: 0.0,
     statusMessage: 'Preparing LUCA for this device...',
     lowMemoryNotice: 'Your device has limited available memory, so startup may take a little longer.',
@@ -551,6 +551,7 @@ export function subscribeProgress(callback) {
 
 /**
  * Generate a streaming response using Qwen3-0.6B on WebGPU with RAG context
+ * Uses approved greedy decoding (doSample: false) for zero CPU sampling latency and deterministic grounding.
  * 
  * @param {Array} messages - Array of { role: 'system'|'user'|'assistant', content: string }
  * @param {object} options - Configuration options: { onToken, maxNewTokens = 128, doSample = false }
@@ -561,7 +562,7 @@ export async function generateQwenResponse(messages, options = {}) {
     onToken = () => {},
     maxNewTokens = 128,
     doSample = false,
-    temperature = 0.2,
+    temperature = 0.0,
   } = options;
 
   let generator;
