@@ -20,6 +20,10 @@ let modelGenerator = null;
 let isDeviceLost = false;
 let lastError = null;
 
+// WebGPU shader warmup state & concurrency lock
+let isWarmedUp = false;
+let warmupPromise = null;
+
 // Hardware probe cache
 let cachedCapability = null;
 let cachedCapabilityPromise = null;
@@ -115,6 +119,8 @@ function handleDeviceLost(info) {
   isDeviceLost = true;
   modelGenerator = null;
   modelPromise = null;
+  isWarmedUp = false;
+  warmupPromise = null;
   lastError = new Error(info?.message || 'WebGPU device was lost. Pipeline invalidated.');
   notifyState('device_lost', info);
 }
@@ -438,18 +444,74 @@ export async function getQwenGenerator(onProgress) {
 }
 
 /**
+ * Asynchronously warm up WebGPU compute shaders with a safe 1-token dummy forward pass.
+ * Protected by a concurrency lock to avoid running simultaneously with user generation.
+ * Failure is non-fatal and will never crash the application or prevent subsequent generation.
+ */
+export async function warmupQwen(generator = null) {
+  if (isWarmedUp) return true;
+  if (warmupPromise) return warmupPromise;
+
+  warmupPromise = (async () => {
+    try {
+      const gen = generator || modelGenerator || (await getQwenGenerator());
+      if (!gen || !gen.tokenizer) return false;
+
+      const dummyPrompt = gen.tokenizer.apply_chat_template(
+        [{ role: 'user', content: 'hi' }],
+        {
+          tokenize: false,
+          add_generation_prompt: true,
+          enable_thinking: false,
+        }
+      );
+
+      // Execute a 1-token generation to force WebGPU shader compilation & pipeline binding
+      await gen(dummyPrompt, { max_new_tokens: 1 });
+      isWarmedUp = true;
+      return true;
+    } catch (err) {
+      console.debug('[QwenService] Non-fatal WebGPU warmup notice:', err?.message || err);
+      return false;
+    } finally {
+      warmupPromise = null;
+    }
+  })();
+
+  return warmupPromise;
+}
+
+export function isQwenWarmedUp() {
+  return isWarmedUp;
+}
+
+/**
  * Pre-warm the Qwen WebGPU model on explicit user intent (e.g. hover, focus on LUCA entry point).
  * Safe and non-blocking; aborts if hardware cannot run WebGPU or is already ready/loading.
+ * Automatically schedules the 1-token shader warmup during idle browser time.
  */
 export async function prewarmQwen() {
-  if (isModelReady() || modelPromise) return;
+  if (isModelReady() && isWarmedUp) return;
 
   const capability = await probeDeviceCapability();
   if (!capability.supported) return; // Do not trigger large asset download on incompatible device
 
-  getQwenGenerator().catch((err) => {
-    console.debug('[QwenService] Non-fatal prewarm notice:', err?.message || err);
-  });
+  getQwenGenerator()
+    .then((generator) => {
+      // Schedule the 1-token dummy warmup during idle time
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        window.requestIdleCallback(() => {
+          warmupQwen(generator).catch(() => {});
+        }, { timeout: 4000 });
+      } else {
+        setTimeout(() => {
+          warmupQwen(generator).catch(() => {});
+        }, 500);
+      }
+    })
+    .catch((err) => {
+      console.debug('[QwenService] Non-fatal prewarm notice:', err?.message || err);
+    });
 }
 
 /**
@@ -458,6 +520,8 @@ export async function prewarmQwen() {
 export function resetQwenGenerator() {
   modelGenerator = null;
   modelPromise = null;
+  isWarmedUp = false;
+  warmupPromise = null;
   isDeviceLost = false;
   lastError = null;
   notifyState('reset');
@@ -505,6 +569,15 @@ export async function generateQwenResponse(messages, options = {}) {
     generator = await getQwenGenerator();
   } catch (err) {
     throw err;
+  }
+
+  // If a background warmup is currently in-flight, await its completion to avoid WebGPU session concurrency collision
+  if (warmupPromise) {
+    try {
+      await warmupPromise;
+    } catch (e) {
+      // Non-fatal, proceed directly to user generation
+    }
   }
 
   /*
@@ -564,6 +637,8 @@ export default {
   getQwenGenerator,
   generateQwenResponse,
   prewarmQwen,
+  warmupQwen,
+  isQwenWarmedUp,
   resetQwenGenerator,
   subscribeState,
   subscribeProgress,

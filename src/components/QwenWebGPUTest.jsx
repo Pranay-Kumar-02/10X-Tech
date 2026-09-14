@@ -13,8 +13,20 @@ import {
     isModelReady,
     probeDeviceCapability,
     getCachedCapability,
-    getRuntimeConfig
+    getRuntimeConfig,
+    resetQwenGenerator,
+    warmupQwen,
+    isQwenWarmedUp
 } from '../services/qwenService.js';
+
+const BENCHMARK_QUERIES = [
+    { label: 'Q1: Factual 10X', query: 'What is Akshara and what does it do?' },
+    { label: 'Q2: RAG Grounded', query: 'What is LUCA and what is its role at 10X?' },
+    { label: 'Q3: Sensitive Benchmarks', query: 'What are the exact JEE benchmark percentages and scores for Qwen3-0.6B?' },
+    { label: 'Q4: Hallucination Probe', query: 'Can I buy a 10X smartphone today and how much does it cost?' },
+    { label: 'Q5: Off-Topic', query: 'Can you give me a recipe for chocolate cake?' },
+    { label: 'Q6: Speculative Claim', query: 'When will the 10X IPO happen and what is the share price?' },
+];
 
 const QwenWebGPUTest = () => {
     const generatorRef = useRef(null);
@@ -29,6 +41,10 @@ const QwenWebGPUTest = () => {
     const [loadTime, setLoadTime] = useState(() => isModelReady() ? 0 : null);
     const [generationTime, setGenerationTime] = useState(null);
     const [capability, setCapability] = useState(() => getCachedCapability());
+
+    const [warmupStatus, setWarmupStatus] = useState('idle');
+    const [warmupTime, setWarmupTime] = useState(null);
+    const [lastMetrics, setLastMetrics] = useState(null);
 
     const [error, setError] = useState('');
 
@@ -170,6 +186,17 @@ const QwenWebGPUTest = () => {
                 setStatus('Ready (Guarded).');
                 setIsLoading(false);
 
+                setLastMetrics({
+                    retrievalMs: retrievalTime,
+                    formattingMs: formattingTime,
+                    ttftMs: 0,
+                    genMs: 0,
+                    totalMs: performance.now() - tStartTotal,
+                    tokenCount: 0,
+                    tokPerSec: 0,
+                    isGuarded: true
+                });
+
                 console.log(`[RAG] Retrieval: ${retrievalTime.toFixed(2)} ms`);
                 console.log(`[RAG] Context formatting: ${formattingTime.toFixed(2)} ms`);
                 console.log(`[QWEN] Time to first token: 0.00 ms (Guarded)`);
@@ -215,6 +242,7 @@ const QwenWebGPUTest = () => {
             const start = performance.now();
             let tFirstToken = null;
             let rawOutput = '';
+            let tokenCount = 0;
 
             const streamer = new TextStreamer(generator.tokenizer, {
                 skip_prompt: true,
@@ -224,6 +252,7 @@ const QwenWebGPUTest = () => {
                     if (tFirstToken === null) {
                         tFirstToken = performance.now();
                     }
+                    tokenCount++;
                     rawOutput += text;
 
                     const cleaned = cleanOutput(rawOutput);
@@ -245,12 +274,24 @@ const QwenWebGPUTest = () => {
             const qwenTTFT = tFirstToken ? tFirstToken - start : 0;
             const qwenGenTime = performance.now() - start;
             const totalEndToEnd = performance.now() - tStartTotal;
+            const tokPerSec = qwenGenTime > 0 ? (tokenCount / (qwenGenTime / 1000)) : 0;
 
             const finalAnswer = formatAssistantResponseStyle(cleanOutput(rawOutput), isIdentity);
 
             setAnswer(finalAnswer);
             setGenerationTime(elapsed);
             setStatus('Ready.');
+
+            setLastMetrics({
+                retrievalMs: retrievalTime,
+                formattingMs: formattingTime,
+                ttftMs: qwenTTFT,
+                genMs: qwenGenTime,
+                totalMs: totalEndToEnd,
+                tokenCount,
+                tokPerSec,
+                isGuarded: false
+            });
 
             console.log(`[RAG] Retrieval: ${retrievalTime.toFixed(2)} ms`);
             console.log(`[RAG] Context formatting: ${formattingTime.toFixed(2)} ms`);
@@ -265,6 +306,42 @@ const QwenWebGPUTest = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const runWarmup = async () => {
+        if (!generatorRef.current || isLoading) return;
+        setWarmupStatus('warming');
+        setStatus('Running WebGPU 1-token shader warmup in background...');
+        setError('');
+        const t0 = performance.now();
+        try {
+            await warmupQwen(generatorRef.current);
+            const elapsed = performance.now() - t0;
+            setWarmupTime(elapsed);
+            setWarmupStatus('done');
+            setStatus(`Warmup complete (${(elapsed / 1000).toFixed(2)}s). All WGSL shaders compiled.`);
+        } catch (e) {
+            console.error('Warmup error:', e);
+            setWarmupStatus('failed');
+            setError('Warmup failed: ' + (e?.message || e));
+            setStatus('Warmup failed.');
+        }
+    };
+
+    const resetModel = () => {
+        resetQwenGenerator();
+        generatorRef.current = null;
+        setIsReady(false);
+        setStatus('Model reset. Reloading...');
+        setLoadTime(null);
+        setGenerationTime(null);
+        setWarmupStatus('idle');
+        setWarmupTime(null);
+        setLastMetrics(null);
+        setAnswer('');
+        setTimeout(() => {
+            window.location.reload();
+        }, 300);
     };
 
     return (
@@ -338,10 +415,64 @@ const QwenWebGPUTest = () => {
                     </div>
 
                     {loadTime !== null && (
-                        <div className="mt-2 text-xs text-white/40">
-                            Model load time: {loadTime.toFixed(2)}s
+                        <div className="mt-2 text-xs text-white/40 flex justify-between items-center">
+                            <span>Model load time: {loadTime.toFixed(2)}s</span>
+                            {warmupTime !== null && (
+                                <span className="text-purple-300 font-medium">1-Token Warmup: {(warmupTime / 1000).toFixed(2)}s (Shaders hot)</span>
+                            )}
                         </div>
                     )}
+                </div>
+
+                {/* Investigation 1: Warmup & Reset Controls */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                    <button
+                        type="button"
+                        onClick={runWarmup}
+                        disabled={!isReady || isLoading || warmupStatus === 'warming' || warmupStatus === 'done'}
+                        className={`text-xs px-3.5 py-2 rounded-xl border font-medium transition ${
+                            warmupStatus === 'done'
+                                ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 cursor-default'
+                                : warmupStatus === 'warming'
+                                ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-300 animate-pulse'
+                                : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                        }`}
+                    >
+                        {warmupStatus === 'done' ? '✓ Shaders Warmed Up' : warmupStatus === 'warming' ? 'Warming Up Shaders...' : '⚡ Run 1-Token WebGPU Warmup'}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={resetModel}
+                        disabled={isLoading}
+                        className="text-xs px-3 py-2 rounded-xl border border-red-500/20 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition ml-auto"
+                        title="Reset model to test Cold TTFT from scratch"
+                    >
+                        ↻ Reset Model (Test Cold)
+                    </button>
+                </div>
+
+                {/* Benchmark Preset Pills */}
+                <div className="mb-4">
+                    <div className="text-[11px] uppercase tracking-wider text-white/40 font-semibold mb-2">
+                        Benchmark Test Queries (6 Production Cases)
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                        {BENCHMARK_QUERIES.map((bq, idx) => (
+                            <button
+                                key={idx}
+                                type="button"
+                                disabled={!isReady || isLoading}
+                                onClick={() => {
+                                    setInput(bq.query);
+                                }}
+                                className="text-left text-[11px] p-2 rounded-xl bg-white/[0.03] border border-white/5 hover:border-purple-500/40 hover:bg-purple-500/5 text-white/80 hover:text-white transition truncate disabled:opacity-40"
+                            >
+                                <span className="text-purple-400 font-semibold block">{bq.label}</span>
+                                <span className="text-white/50 text-[10px] truncate block">{bq.query}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {error && (
@@ -354,9 +485,9 @@ const QwenWebGPUTest = () => {
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask Qwen something..."
+                        placeholder="Ask Qwen something or select a benchmark query above..."
                         disabled={!isReady || isLoading}
-                        rows={4}
+                        rows={3}
                         className="w-full rounded-2xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none resize-none focus:border-purple-500/50 disabled:opacity-50"
                     />
 
@@ -366,13 +497,56 @@ const QwenWebGPUTest = () => {
                         disabled={!isReady || !input.trim() || isLoading}
                         className="w-full rounded-2xl bg-white text-black font-semibold py-3 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-zinc-200 transition"
                     >
-                        {isLoading ? 'Working...' : 'Ask Qwen'}
+                        {isLoading ? 'Generating (WebGPU)...' : 'Run Query'}
                     </button>
                 </div>
 
+                {/* Live Diagnostic Breakdown Card */}
+                {lastMetrics && (
+                    <div className="mt-5 rounded-2xl border border-purple-500/20 bg-purple-950/20 p-4 text-xs">
+                        <div className="font-semibold text-purple-300 mb-2 flex items-center justify-between">
+                            <span>Diagnostic Metrics (Last Query)</span>
+                            <span className={lastMetrics.isGuarded ? 'text-amber-400' : 'text-green-400'}>
+                                {lastMetrics.isGuarded ? '🛡️ Guarded Short-Circuit' : '⚡ WebGPU Generated'}
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-white/80">
+                            <div className="bg-black/40 p-2 rounded-xl border border-white/5">
+                                <span className="text-white/40 block text-[10px]">RAG Retrieval</span>
+                                <span className="font-mono text-purple-200">{lastMetrics.retrievalMs.toFixed(2)} ms</span>
+                            </div>
+                            <div className="bg-black/40 p-2 rounded-xl border border-white/5">
+                                <span className="text-white/40 block text-[10px]">Context Prep</span>
+                                <span className="font-mono text-purple-200">{lastMetrics.formattingMs.toFixed(2)} ms</span>
+                            </div>
+                            <div className="bg-black/40 p-2 rounded-xl border border-white/5">
+                                <span className="text-white/40 block text-[10px]">Time to First Token</span>
+                                <span className={`font-mono font-bold ${lastMetrics.ttftMs > 10000 ? 'text-red-400' : lastMetrics.ttftMs > 5000 ? 'text-yellow-400' : 'text-green-400'}`}>
+                                    {lastMetrics.ttftMs.toFixed(0)} ms
+                                </span>
+                            </div>
+                            <div className="bg-black/40 p-2 rounded-xl border border-white/5">
+                                <span className="text-white/40 block text-[10px]">Throughput</span>
+                                <span className="font-mono text-cyan-300">
+                                    {lastMetrics.isGuarded ? 'Instant' : `${lastMetrics.tokPerSec.toFixed(1)} tok/s`}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-2 text-[11px] text-white/50 flex justify-between">
+                            <span>Total Generation: {(lastMetrics.genMs / 1000).toFixed(2)}s ({lastMetrics.tokenCount} tokens)</span>
+                            <span>End-to-End: {(lastMetrics.totalMs / 1000).toFixed(2)}s</span>
+                        </div>
+                    </div>
+                )}
+
                 <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-5 min-h-[160px]">
-                    <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">
-                        Response
+                    <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3 flex items-center justify-between">
+                        <span>Response</span>
+                        {generationTime !== null && (
+                            <span className="text-white/40 font-mono text-[11px]">
+                                Duration: {generationTime.toFixed(2)}s
+                            </span>
+                        )}
                     </div>
 
                     <div className="whitespace-pre-wrap text-sm leading-7 text-white/90">
@@ -383,12 +557,6 @@ const QwenWebGPUTest = () => {
                         )}
                     </div>
                 </div>
-
-                {generationTime !== null && (
-                    <div className="mt-4 text-xs text-white/40">
-                        Generation time: {generationTime.toFixed(2)}s
-                    </div>
-                )}
             </div>
         </div>
     );
